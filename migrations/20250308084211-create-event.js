@@ -7,7 +7,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         comment: "活动ID,主键",
       },
       name: {
@@ -30,7 +30,7 @@ module.exports = {
         comment: "活动地点,非空",
       },
       creatorId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         comment: "创建者ID,外键,关联users表",
         // references: {
@@ -41,13 +41,13 @@ module.exports = {
         // onDelete: "RESTRICT",
       },
       participants: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         defaultValue: 0,
         comment: "参与者数量,非空,无符号,默认值为0",
       },
       difficulty: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         defaultValue: 0,
         comment: "活动难度等级,非空,无符号",

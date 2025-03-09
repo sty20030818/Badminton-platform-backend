@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
 	Event.init(
 		{
 			id: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.INTEGER.UNSIGNED,
 				primaryKey: true,
 				autoIncrement: true,
 				comment: '活动ID,主键',
@@ -103,7 +103,7 @@ module.exports = (sequelize, DataTypes) => {
 				comment: '活动地点,非空',
 			},
 			creatorId: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				validate: {
 					notNull: {
@@ -120,7 +120,7 @@ module.exports = (sequelize, DataTypes) => {
 				comment: '创建者ID,外键,关联users表',
 			},
 			participants: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				defaultValue: 0,
 				validate: {
@@ -139,7 +139,7 @@ module.exports = (sequelize, DataTypes) => {
 				comment: '参与者数量,非空、无符号,默认值为0',
 			},
 			difficulty: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				defaultValue: 0,
 				validate: {
@@ -155,7 +155,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '难度等级不能超过10。',
 					},
 				},
-				comment: '活动难度等级,非空、无符号',
+				comment: '活动难度等级,非空、无符号,默认值为0',
 			},
 			eventType: {
 				type: DataTypes.STRING,
