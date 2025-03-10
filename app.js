@@ -3,6 +3,8 @@ const path = require('path')
 const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 const adminAuth = require('./middlewares/admin-auth')
+const cors = require('cors')
+
 require('dotenv').config()
 
 const indexRouter = require('./routes/index')
@@ -23,6 +25,13 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
+
+//*CORS 跨域配置
+const corsOptions = {
+	// origin: 'http://localhost:3000',
+	// credentials: true,
+}
+app.use(cors(corsOptions))
 
 app.use('/', indexRouter)
 app.use('/users', usersRouter)

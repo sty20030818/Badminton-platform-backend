@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
 			//* 定义与 Venue 模型的关联关系
 			Event.belongsTo(models.Venue, {
 				foreignKey: 'venueId',
-				as: 'venue'
+				as: 'venue',
 			})
 		}
 	}

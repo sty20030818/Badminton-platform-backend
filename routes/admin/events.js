@@ -2,8 +2,8 @@ const express = require('express')
 const router = express.Router()
 const { Event, EventVenue, Venue, User } = require('../../models')
 const { Op } = require('sequelize')
-const { NotFoundError } = require('../../utils/errors');
-const { success, failure } = require('../../utils/responses');
+const { NotFoundError } = require('../../utils/errors')
+const { success, failure } = require('../../utils/responses')
 
 /**
  ** 查询活动列表
@@ -31,15 +31,18 @@ router.get('/', async function (req, res) {
 			//* 在查询条件中添加 limit 和 offset
 			limit: pageSize,
 			offset: offset,
-			include: [{
-				model: User,
-				as: 'creator',
-				attributes: ['id', 'username', 'nickname', 'email', 'avatar', 'introduce']
-			}, {
-				model: Venue,
-				as: 'venue',
-				attributes: ['id', 'name', 'location', 'description', 'status']
-			}]
+			include: [
+				{
+					model: User,
+					as: 'creator',
+					attributes: ['id', 'username', 'nickname', 'email', 'avatar', 'introduce'],
+				},
+				{
+					model: Venue,
+					as: 'venue',
+					attributes: ['id', 'name', 'location', 'description', 'status'],
+				},
+			],
 		}
 
 		//* 如果有 name 查询参数,就添加到 where 条件中
@@ -94,7 +97,7 @@ router.post('/', async function (req, res) {
 	try {
 		const body = {
 			...filterBody(req),
-			creatorId: req.user.id
+			creatorId: req.user.id,
 		}
 
 		// 检查场地是否存在
@@ -156,15 +159,18 @@ async function getEvent(reqOrId) {
 	const id = typeof reqOrId === 'object' ? reqOrId.params.id : reqOrId
 	//* 查询当前活动
 	const event = await Event.findByPk(id, {
-		include: [{
-			model: User,
-			as: 'creator',
-			attributes: ['id', 'username', 'nickname', 'email', 'avatar', 'introduce']
-		}, {
-			model: Venue,
-			as: 'venue',
-			attributes: ['id', 'name', 'location', 'description', 'status']
-		}]
+		include: [
+			{
+				model: User,
+				as: 'creator',
+				attributes: ['id', 'username', 'nickname', 'email', 'avatar', 'introduce'],
+			},
+			{
+				model: Venue,
+				as: 'venue',
+				attributes: ['id', 'name', 'location', 'description', 'status'],
+			},
+		],
 	})
 
 	//* 如果没有找到，就抛出异常
@@ -196,7 +202,7 @@ function filterBody(req) {
 		venueId: req.body.venueId,
 		difficulty: req.body.difficulty,
 		eventType: req.body.eventType,
-		registrationDeadline: req.body.registrationDeadline || req.body.time
+		registrationDeadline: req.body.registrationDeadline || req.body.time,
 	}
 }
 

@@ -1,9 +1,9 @@
-const express = require("express");
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
 /* GET home page. */
-router.get("/", function (req, res, next) {
-  res.json({ message: "在线约球系统后台" });
-});
+router.get('/', function (req, res, next) {
+	res.json({ message: '在线约球系统后台' })
+})
 
-module.exports = router;
+module.exports = router
