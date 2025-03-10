@@ -11,12 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // 定义关联关系
-      Venue.hasMany(models.Reservation, {
-        foreignKey: 'venueId',
-        as: 'reservations'
-      });
-      Venue.belongsToMany(models.Event, {
-        through: 'EventVenues',
+      Venue.hasMany(models.Event, {
         foreignKey: 'venueId',
         as: 'events'
       });

@@ -3,9 +3,11 @@ const { Model } = require('sequelize')
 
 // 辅助函数：转换为东八区时间
 function convertToUTC8(date) {
+	// 检查输入的日期是否为空，如果为空则返回null
 	if (!date) return null
+	// 将输入的日期字符串转换为Date对象
 	const d = new Date(date)
-	// 获取当前时区偏移（分钟）
+	// 获取当前时区偏移（分钟），时区偏移是以分钟为单位的，正值表示西时区，负值表示东时区
 	const timezoneOffset = d.getTimezoneOffset()
 	// 转换为东八区时间（+8小时 = -480分钟的偏移）
 	return new Date(d.getTime() + (timezoneOffset + 480) * 60 * 1000)
@@ -20,10 +22,16 @@ module.exports = (sequelize, DataTypes) => {
 		 */
 		static associate(models) {
 			//* 定义与 User 模型的关联关系
-			// Event.belongsTo(models.User, {
-			//   foreignKey: 'creatorId',
-			//   as: 'creator'
-			// });
+			Event.belongsTo(models.User, {
+				foreignKey: 'creatorId',
+				as: 'creator',
+			})
+
+			//* 定义与 Venue 模型的关联关系
+			Event.belongsTo(models.Venue, {
+				foreignKey: 'venueId',
+				as: 'venue'
+			})
 		}
 	}
 	Event.init(
@@ -64,13 +72,6 @@ module.exports = (sequelize, DataTypes) => {
 			time: {
 				type: DataTypes.DATE,
 				allowNull: false,
-				get() {
-					const time = this.getDataValue('time')
-					return time ? convertToUTC8(time) : null
-				},
-				set(value) {
-					this.setDataValue('time', value ? convertToUTC8(value) : null)
-				},
 				validate: {
 					notNull: {
 						msg: '活动时间必须存在。',
@@ -85,22 +86,22 @@ module.exports = (sequelize, DataTypes) => {
 				},
 				comment: '活动时间,非空',
 			},
-			location: {
-				type: DataTypes.STRING,
+			venueId: {
+				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '活动地点必须存在。',
+						msg: '场地ID必须存在。',
 					},
-					notEmpty: {
-						msg: '活动地点不能为空。',
+					isInt: {
+						msg: '场地ID必须是整数。',
 					},
-					len: {
-						args: [2, 20],
-						msg: '活动地点长度需要在2 ~ 20个字符之间。',
+					min: {
+						args: [1],
+						msg: '场地ID必须大于0。',
 					},
 				},
-				comment: '活动地点,非空',
+				comment: '场地ID,外键,关联venues表',
 			},
 			creatorId: {
 				type: DataTypes.INTEGER.UNSIGNED,
@@ -169,13 +170,6 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			registrationDeadline: {
 				type: DataTypes.DATE,
-				get() {
-					const deadline = this.getDataValue('registrationDeadline')
-					return deadline ? convertToUTC8(deadline) : null
-				},
-				set(value) {
-					this.setDataValue('registrationDeadline', value ? convertToUTC8(value) : null)
-				},
 				validate: {
 					isDate: {
 						msg: '请输入有效的截止日期。',
@@ -196,6 +190,45 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			sequelize,
 			modelName: 'Event',
+			timestamps: true,
+			hooks: {
+				beforeCreate: (event) => {
+					if (event.time) {
+						event.time = convertToUTC8(event.time)
+					}
+					if (event.registrationDeadline) {
+						event.registrationDeadline = convertToUTC8(event.registrationDeadline)
+					}
+				},
+				beforeUpdate: (event) => {
+					if (event.time) {
+						event.time = convertToUTC8(event.time)
+					}
+					if (event.registrationDeadline) {
+						event.registrationDeadline = convertToUTC8(event.registrationDeadline)
+					}
+				},
+				afterFind: (events) => {
+					if (!events) return
+					if (Array.isArray(events)) {
+						events.forEach((event) => {
+							if (event.time) {
+								event.time = convertToUTC8(event.time)
+							}
+							if (event.registrationDeadline) {
+								event.registrationDeadline = convertToUTC8(event.registrationDeadline)
+							}
+						})
+					} else {
+						if (events.time) {
+							events.time = convertToUTC8(events.time)
+						}
+						if (events.registrationDeadline) {
+							events.registrationDeadline = convertToUTC8(events.registrationDeadline)
+						}
+					}
+				},
+			},
 		}
 	)
 	return Event

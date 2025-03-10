@@ -1,4 +1,5 @@
 'use strict';
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -23,8 +24,19 @@ module.exports = {
           model: 'Events',
           key: 'id'
         },
-        onUpdate: 'NO ACTION',
-        onDelete: 'NO ACTION'
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
+      },
+      creatorId: {
+        type: Sequelize.INTEGER.UNSIGNED,
+        allowNull: false,
+        comment: '创建者ID，外键，关联users表',
+        references: {
+          model: 'Users',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
       },
       createdAt: {
         allowNull: false,
@@ -35,10 +47,6 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
-
-    // 添加索引
-    await queryInterface.addIndex('Groups', ['eventId']);
-    await queryInterface.addIndex('Groups', ['name']);
   },
 
   async down(queryInterface, Sequelize) {

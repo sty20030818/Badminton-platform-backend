@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'eventId',
         as: 'event'
       });
+      Group.belongsTo(models.User, {
+        foreignKey: 'creatorId',
+        as: 'creator'
+      });
       Group.belongsToMany(models.User, {
         through: 'GroupMembers',
         foreignKey: 'groupId',
@@ -55,6 +59,16 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
       comment: '活动ID，外键，关联events表'
+    },
+    creatorId: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: '创建者ID必须存在。'
+        }
+      },
+      comment: '创建者ID，外键，关联users表'
     }
   }, {
     sequelize,

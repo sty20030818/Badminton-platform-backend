@@ -11,7 +11,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // 定义关联关系
-      // 这是一个关联表，主要关联关系已在 User 和 Group 模型中定义
+      GroupMember.belongsTo(models.User, {
+        foreignKey: 'userId'
+      });
+      GroupMember.belongsTo(models.Group, {
+        foreignKey: 'groupId'
+      });
     }
   }
   GroupMember.init({

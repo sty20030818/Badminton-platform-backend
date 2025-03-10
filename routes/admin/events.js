@@ -1,8 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const { Event } = require('../../models')
+const { Event, EventVenue, Venue, User } = require('../../models')
 const { Op } = require('sequelize')
-const { NotFoundError, success, failure } = require('../../utils/response').default
+const { NotFoundError } = require('../../utils/errors');
+const { success, failure } = require('../../utils/responses');
 
 /**
  ** 查询活动列表
@@ -30,6 +31,15 @@ router.get('/', async function (req, res) {
 			//* 在查询条件中添加 limit 和 offset
 			limit: pageSize,
 			offset: offset,
+			include: [{
+				model: User,
+				as: 'creator',
+				attributes: ['id', 'username', 'nickname', 'email', 'avatar', 'introduce']
+			}, {
+				model: Venue,
+				as: 'venue',
+				attributes: ['id', 'name', 'location', 'description', 'status']
+			}]
 		}
 
 		//* 如果有 name 查询参数,就添加到 where 条件中
@@ -82,10 +92,26 @@ router.get('/:id', async function (req, res) {
  */
 router.post('/', async function (req, res) {
 	try {
-		const body = filterBody(req)
+		const body = {
+			...filterBody(req),
+			creatorId: req.user.id
+		}
+
+		// 检查场地是否存在
+		if (body.venueId) {
+			const venue = await Venue.findByPk(body.venueId)
+			if (!venue) {
+				throw new NotFoundError(`ID: ${body.venueId}的场地未找到。`)
+			}
+		}
+
+		// 创建活动
 		const event = await Event.create(body)
 
-		success(res, '创建活动成功。', { event }, 201)
+		// 重新查询活动信息，包含关联数据
+		const eventWithDetails = await getEvent(event.id)
+
+		success(res, '创建活动成功。', { event: eventWithDetails }, 201)
 	} catch (error) {
 		failure(res, error)
 	}
@@ -125,11 +151,21 @@ router.delete('/:id', async function (req, res) {
 /**
  ** 公共方法：查询当前活动
  */
-async function getEvent(req) {
+async function getEvent(reqOrId) {
 	//* 获取活动 ID
-	const { id } = req.params
+	const id = typeof reqOrId === 'object' ? reqOrId.params.id : reqOrId
 	//* 查询当前活动
-	const event = await Event.findByPk(id)
+	const event = await Event.findByPk(id, {
+		include: [{
+			model: User,
+			as: 'creator',
+			attributes: ['id', 'username', 'nickname', 'email', 'avatar', 'introduce']
+		}, {
+			model: Venue,
+			as: 'venue',
+			attributes: ['id', 'name', 'location', 'description', 'status']
+		}]
+	})
 
 	//* 如果没有找到，就抛出异常
 	if (!event) {
@@ -146,9 +182,7 @@ async function getEvent(req) {
  **   name: string,
  **   description: string,
  **   time: Date,
- **   location: string,
- **   creatorId: number,
- **   participants: number,
+ **   venueId: number,
  **   difficulty: number,
  **   eventType: string,
  **   registrationDeadline: Date
@@ -159,12 +193,10 @@ function filterBody(req) {
 		name: req.body.name,
 		description: req.body.description,
 		time: req.body.time,
-		location: req.body.location,
-		creatorId: req.body.creatorId,
-		participants: req.body.participants,
+		venueId: req.body.venueId,
 		difficulty: req.body.difficulty,
 		eventType: req.body.eventType,
-		registrationDeadline: req.body.registrationDeadline,
+		registrationDeadline: req.body.registrationDeadline || req.body.time
 	}
 }
 

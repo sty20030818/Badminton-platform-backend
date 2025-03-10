@@ -3,23 +3,29 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('EventVenues', [
+    await queryInterface.bulkInsert('GroupMembers', [
       {
-        eventId: 1,
-        venueId: 1, // 江南体育中心
+        groupId: 1,
+        userId: 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        eventId: 2,
-        venueId: 2, // 滨江体育馆
+        groupId: 1,
+        userId: 2,
         createdAt: new Date(),
         updatedAt: new Date()
-      }
+      },
+      {
+        groupId: 2,
+        userId: 3,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
     ], {});
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('EventVenues', null, {});
+    await queryInterface.bulkDelete('GroupMembers', null, {});
   }
 };

@@ -3,34 +3,32 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('GroupMembers', [
+    await queryInterface.bulkInsert('Groups', [
       {
-        groupId: 1,
-        userId: 1,
+        name: '休闲组',
+        eventId: 1,
+        creatorId: 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        groupId: 1,
-        userId: 2,
+        name: '对抗组',
+        eventId: 1,
+        creatorId: 1,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        groupId: 2,
-        userId: 3,
+        name: '休闲组',
+        eventId: 2,
+        creatorId: 2,
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
-        groupId: 3,
-        userId: 1,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        groupId: 3,
-        userId: 2,
+        name: '对抗组',
+        eventId: 2,
+        creatorId: 2,
         createdAt: new Date(),
         updatedAt: new Date()
       }
@@ -38,6 +36,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('GroupMembers', null, {});
+    await queryInterface.bulkDelete('Groups', null, {});
   }
 };
