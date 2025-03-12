@@ -18,7 +18,9 @@ module.exports = async (req, res, next) => {
 		const { userId } = decoded
 
 		//* 查询一下，当前用户
-		const user = await User.findByPk(userId)
+		const user = await User.findByPk(userId, {
+			attributes: ['id', 'role']  // 只查询需要的字段
+		})
 		if (!user) {
 			throw new UnauthorizedError('用户不存在。')
 		}

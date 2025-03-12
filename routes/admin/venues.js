@@ -17,14 +17,14 @@ router.get('/', async function (req, res) {
 		const offset = (currentPage - 1) * pageSize
 
 		const condition = {
-			order: [['id', 'DESC']],
+			order: [['id', 'ASC']],
 			limit: pageSize,
 			offset: offset,
 			include: [
 				{
 					model: Event,
 					as: 'events',
-					through: { attributes: [] }, // 不返回中间表的字段
+					// through: { attributes: [] }, // 不返回中间表的字段
 					where: {
 						time: {
 							[Op.gte]: new Date(), // 活动时间大于等于当前时间
@@ -35,11 +35,11 @@ router.get('/', async function (req, res) {
 						{
 							model: User,
 							as: 'creator',
-							attributes: ['id', 'username'],
-						},
-					],
-				},
-			],
+							attributes: ['id', 'username']
+						}
+					]
+				}
+			]
 		}
 
 		if (query.name) {
@@ -131,7 +131,6 @@ async function getVenue(req) {
 			{
 				model: Event,
 				as: 'events',
-				through: { attributes: [] }, // 不返回中间表的字段
 				where: {
 					time: {
 						[Op.gte]: new Date(), // 活动时间大于等于当前时间
@@ -142,11 +141,11 @@ async function getVenue(req) {
 					{
 						model: User,
 						as: 'creator',
-						attributes: ['id', 'username'],
-					},
-				],
-			},
-		],
+						attributes: ['id', 'username']
+					}
+				]
+			}
+		]
 	})
 
 	if (!venue) {

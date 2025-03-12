@@ -17,9 +17,12 @@ router.get('/', async function (req, res) {
 		const offset = (currentPage - 1) * pageSize
 
 		const condition = {
-			order: [['id', 'DESC']],
+			order: [['id', 'ASC']],
 			limit: pageSize,
 			offset: offset,
+			attributes: {
+				exclude: ['password']
+			}
 		}
 
 		if (query.username) {
