@@ -35,11 +35,11 @@ router.get('/', async function (req, res) {
 						{
 							model: User,
 							as: 'creator',
-							attributes: ['id', 'username']
-						}
-					]
-				}
-			]
+							attributes: ['id', 'username'],
+						},
+					],
+				},
+			],
 		}
 
 		if (query.name) {
@@ -52,7 +52,7 @@ router.get('/', async function (req, res) {
 
 		const { count, rows } = await Venue.findAndCountAll(condition)
 
-		success(res, '查询场地列表成功。', {
+		success(res, '查询场地列表成功', {
 			venues: rows,
 			pagination: {
 				total: count,
@@ -72,7 +72,7 @@ router.get('/', async function (req, res) {
 router.get('/:id', async function (req, res) {
 	try {
 		const venue = await getVenue(req)
-		success(res, '查询场地成功。', { venue })
+		success(res, '查询场地成功', { venue })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -86,7 +86,7 @@ router.post('/', async function (req, res) {
 	try {
 		const body = filterBody(req)
 		const venue = await Venue.create(body)
-		success(res, '创建场地成功。', { venue }, 201)
+		success(res, '创建场地成功', { venue }, 201)
 	} catch (error) {
 		failure(res, error)
 	}
@@ -101,7 +101,7 @@ router.put('/:id', async function (req, res) {
 		const venue = await getVenue(req)
 		const body = filterBody(req)
 		await venue.update(body)
-		success(res, '更新场地成功。', { venue })
+		success(res, '更新场地成功', { venue })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -115,7 +115,7 @@ router.delete('/:id', async function (req, res) {
 	try {
 		const venue = await getVenue(req)
 		await venue.destroy()
-		success(res, '删除场地成功。')
+		success(res, '删除场地成功')
 	} catch (error) {
 		failure(res, error)
 	}
@@ -141,15 +141,15 @@ async function getVenue(req) {
 					{
 						model: User,
 						as: 'creator',
-						attributes: ['id', 'username']
-					}
-				]
-			}
-		]
+						attributes: ['id', 'username'],
+					},
+				],
+			},
+		],
 	})
 
 	if (!venue) {
-		throw new NotFoundError(`ID: ${id}的场地未找到。`)
+		throw new NotFoundError(`ID: ${id}的场地未找到`)
 	}
 
 	return venue

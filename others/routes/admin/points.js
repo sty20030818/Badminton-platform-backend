@@ -36,7 +36,7 @@ router.get('/', async function (req, res) {
 
 		const { count, rows } = await Point.findAndCountAll(condition)
 
-		success(res, '查询积分列表成功。', {
+		success(res, '查询积分列表成功', {
 			points: rows,
 			pagination: {
 				total: count,
@@ -56,7 +56,7 @@ router.get('/', async function (req, res) {
 router.get('/:id', async function (req, res) {
 	try {
 		const point = await getPoint(req)
-		success(res, '查询积分成功。', { point })
+		success(res, '查询积分成功', { point })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -70,7 +70,7 @@ router.post('/', async function (req, res) {
 	try {
 		const body = filterBody(req)
 		const point = await Point.create(body)
-		success(res, '添加积分成功。', { point }, 201)
+		success(res, '添加积分成功', { point }, 201)
 	} catch (error) {
 		failure(res, error)
 	}
@@ -85,7 +85,7 @@ router.put('/:id', async function (req, res) {
 		const point = await getPoint(req)
 		const body = filterBody(req)
 		await point.update(body)
-		success(res, '更新积分成功。', { point })
+		success(res, '更新积分成功', { point })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -99,7 +99,7 @@ router.delete('/:id', async function (req, res) {
 	try {
 		const point = await getPoint(req)
 		await point.destroy()
-		success(res, '删除积分成功。')
+		success(res, '删除积分成功')
 	} catch (error) {
 		failure(res, error)
 	}
@@ -114,7 +114,11 @@ router.get('/leaderboard/top', async function (req, res) {
 		const { limit = 10 } = req.query
 
 		const leaderboard = await User.findAll({
-			attributes: ['id', 'username', [sequelize.fn('SUM', sequelize.col('Points.points')), 'totalPoints']],
+			attributes: [
+				'id',
+				'username',
+				[sequelize.fn('SUM', sequelize.col('Points.points')), 'totalPoints'],
+			],
 			include: [
 				{
 					model: Point,
@@ -126,7 +130,7 @@ router.get('/leaderboard/top', async function (req, res) {
 			limit: parseInt(limit),
 		})
 
-		success(res, '查询积分排行榜成功。', { leaderboard })
+		success(res, '查询积分排行榜成功', { leaderboard })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -147,7 +151,7 @@ async function getPoint(req) {
 	})
 
 	if (!point) {
-		throw new NotFoundError(`ID: ${id}的积分记录未找到。`)
+		throw new NotFoundError(`ID: ${id}的积分记录未找到`)
 	}
 
 	return point

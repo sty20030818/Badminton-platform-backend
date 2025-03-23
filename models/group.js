@@ -37,14 +37,14 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '小组名称必须存在。',
+						msg: '小组名称必须存在',
 					},
 					notEmpty: {
-						msg: '小组名称不能为空。',
+						msg: '小组名称不能为空',
 					},
 					len: {
 						args: [2, 30],
-						msg: '小组名称长度需要在2 ~ 30个字符之间。',
+						msg: '小组名称长度需要在2 ~ 30个字符之间',
 					},
 				},
 				comment: '小组名称，非空',
@@ -54,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '活动ID必须存在。',
+						msg: '活动ID必须存在',
 					},
 				},
 				comment: '活动ID，外键，关联events表',
@@ -64,7 +64,7 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '创建者ID必须存在。',
+						msg: '创建者ID必须存在',
 					},
 				},
 				comment: '创建者ID，外键，关联users表',
@@ -73,7 +73,7 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			sequelize,
 			modelName: 'Group',
-		}
+		},
 	)
 	return Group
 }

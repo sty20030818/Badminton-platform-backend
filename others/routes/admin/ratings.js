@@ -42,7 +42,7 @@ router.get('/', async function (req, res) {
 
 		const { count, rows } = await Rating.findAndCountAll(condition)
 
-		success(res, '查询评分列表成功。', {
+		success(res, '查询评分列表成功', {
 			ratings: rows,
 			pagination: {
 				total: count,
@@ -62,7 +62,7 @@ router.get('/', async function (req, res) {
 router.get('/:id', async function (req, res) {
 	try {
 		const rating = await getRating(req)
-		success(res, '查询评分成功。', { rating })
+		success(res, '查询评分成功', { rating })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -77,7 +77,7 @@ router.put('/:id', async function (req, res) {
 		const rating = await getRating(req)
 		const body = filterBody(req)
 		await rating.update(body)
-		success(res, '更新评分成功。', { rating })
+		success(res, '更新评分成功', { rating })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -91,7 +91,7 @@ router.delete('/:id', async function (req, res) {
 	try {
 		const rating = await getRating(req)
 		await rating.destroy()
-		success(res, '删除评分成功。')
+		success(res, '删除评分成功')
 	} catch (error) {
 		failure(res, error)
 	}
@@ -113,7 +113,9 @@ router.get('/statistics/user/:userId', async function (req, res) {
 			where: { ratedId: userId },
 		})
 
-		success(res, '查询用户评分统计成功。', { statistics: statistics[0] })
+		success(res, '查询用户评分统计成功', {
+			statistics: statistics[0],
+		})
 	} catch (error) {
 		failure(res, error)
 	}
@@ -140,7 +142,7 @@ async function getRating(req) {
 	})
 
 	if (!rating) {
-		throw new NotFoundError(`ID: ${id}的评分记录未找到。`)
+		throw new NotFoundError(`ID: ${id}的评分记录未找到`)
 	}
 
 	return rating

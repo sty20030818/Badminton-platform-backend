@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '用户ID必须存在。',
+						msg: '用户ID必须存在',
 					},
 				},
 				comment: '用户ID，外键，关联users表',
@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '场地ID必须存在。',
+						msg: '场地ID必须存在',
 					},
 				},
 				comment: '场地ID，外键，关联venues表',
@@ -52,14 +52,14 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '预约时间段必须存在。',
+						msg: '预约时间段必须存在',
 					},
 					isDate: {
-						msg: '请输入有效的日期时间。',
+						msg: '请输入有效的日期时间',
 					},
 					isAfter: {
 						args: new Date().toString(),
-						msg: '预约时间必须是将来的时间。',
+						msg: '预约时间必须是将来的时间',
 					},
 				},
 				comment: '预约时间段，非空',
@@ -69,11 +69,11 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '预约状态必须存在。',
+						msg: '预约状态必须存在',
 					},
 					isIn: {
 						args: [['待确认', '已确认', '已取消', '已完成']],
-						msg: '预约状态必须是：待确认、已确认、已取消、已完成之一。',
+						msg: '预约状态必须是：待确认、已确认、已取消、已完成之一',
 					},
 				},
 				comment: '预约状态，非空',
@@ -82,7 +82,7 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			sequelize,
 			modelName: 'Reservation',
-		}
+		},
 	)
 	return Reservation
 }

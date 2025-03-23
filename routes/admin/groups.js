@@ -39,7 +39,7 @@ router.get('/', async function (req, res) {
 
 		const { count, rows } = await Group.findAndCountAll(condition)
 
-		success(res, '查询小组列表成功。', {
+		success(res, '查询小组列表成功', {
 			groups: rows,
 			pagination: {
 				total: count,
@@ -59,7 +59,7 @@ router.get('/', async function (req, res) {
 router.get('/:id', async function (req, res) {
 	try {
 		const group = await getGroup(req)
-		success(res, '查询小组成功。', { group })
+		success(res, '查询小组成功', { group })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -76,7 +76,7 @@ router.post('/', async function (req, res) {
 			creatorId: req.user.id, // 使用当前登录用户的ID
 		}
 		const group = await Group.create(body)
-		success(res, '创建小组成功。', { group }, 201)
+		success(res, '创建小组成功', { group }, 201)
 	} catch (error) {
 		failure(res, error)
 	}
@@ -91,7 +91,7 @@ router.put('/:id', async function (req, res) {
 		const group = await getGroup(req)
 		const body = filterBody(req)
 		await group.update(body)
-		success(res, '更新小组成功。', { group })
+		success(res, '更新小组成功', { group })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -105,7 +105,7 @@ router.delete('/:id', async function (req, res) {
 	try {
 		const group = await getGroup(req)
 		await group.destroy()
-		success(res, '删除小组成功。')
+		success(res, '删除小组成功')
 	} catch (error) {
 		failure(res, error)
 	}
@@ -141,7 +141,7 @@ router.get('/:id/members', async function (req, res) {
 			email: member.User.email,
 		}))
 
-		success(res, '查询小组成员列表成功。', {
+		success(res, '查询小组成员列表成功', {
 			members: formattedMembers,
 			pagination: {
 				total: members.count,
@@ -166,13 +166,13 @@ router.post('/:id/members', async function (req, res) {
 		// 检查小组是否存在
 		const group = await Group.findByPk(groupId)
 		if (!group) {
-			throw new NotFoundError('小组不存在。')
+			throw new NotFoundError('小组不存在')
 		}
 
 		// 检查用户是否存在
 		const user = await User.findByPk(userId)
 		if (!user) {
-			throw new NotFoundError('用户不存在。')
+			throw new NotFoundError('用户不存在')
 		}
 
 		// 检查用户是否已经是小组成员
@@ -180,13 +180,13 @@ router.post('/:id/members', async function (req, res) {
 			where: { groupId, userId },
 		})
 		if (existingMember) {
-			throw new Error('该用户已经是小组成员。')
+			throw new Error('该用户已经是小组成员')
 		}
 
 		// 创建小组成员关系
 		await GroupMember.create({ groupId, userId })
 
-		success(res, '添加小组成员成功。', null, 201)
+		success(res, '添加小组成员成功', null, 201)
 	} catch (error) {
 		failure(res, error)
 	}
@@ -204,11 +204,11 @@ router.delete('/:groupId/members/:userId', async function (req, res) {
 		})
 
 		if (!member) {
-			throw new NotFoundError('该用户不是小组成员。')
+			throw new NotFoundError('该用户不是小组成员')
 		}
 
 		await member.destroy()
-		success(res, '移除小组成员成功。')
+		success(res, '移除小组成员成功')
 	} catch (error) {
 		failure(res, error)
 	}
@@ -230,7 +230,7 @@ async function getGroup(req) {
 	})
 
 	if (!group) {
-		throw new NotFoundError(`ID: ${id}的小组未找到。`)
+		throw new NotFoundError(`ID: ${id}的小组未找到`)
 	}
 
 	return group

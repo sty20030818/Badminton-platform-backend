@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '评分用户ID必须存在。',
+						msg: '评分用户ID必须存在',
 					},
 				},
 				comment: '评分用户ID，外键，关联users表',
@@ -42,11 +42,11 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '被评分用户ID必须存在。',
+						msg: '被评分用户ID必须存在',
 					},
 					notEqual(value) {
 						if (value === this.userId) {
-							throw new Error('不能给自己评分。')
+							throw new Error('不能给自己评分')
 						}
 					},
 				},
@@ -57,15 +57,15 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '评分必须存在。',
+						msg: '评分必须存在',
 					},
 					min: {
 						args: [1],
-						msg: '评分不能小于1。',
+						msg: '评分不能小于1',
 					},
 					max: {
 						args: [5],
-						msg: '评分不能大于5。',
+						msg: '评分不能大于5',
 					},
 				},
 				comment: '评分，非空、无符号',
@@ -74,7 +74,7 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			sequelize,
 			modelName: 'Rating',
-		}
+		},
 	)
 	return Rating
 }

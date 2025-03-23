@@ -21,8 +21,8 @@ router.get('/', async function (req, res) {
 			limit: pageSize,
 			offset: offset,
 			attributes: {
-				exclude: ['password']
-			}
+				exclude: ['password'],
+			},
 		}
 
 		if (query.username) {
@@ -35,7 +35,7 @@ router.get('/', async function (req, res) {
 
 		const { count, rows } = await User.findAndCountAll(condition)
 
-		success(res, '查询用户列表成功。', {
+		success(res, '查询用户列表成功', {
 			users: rows,
 			pagination: {
 				total: count,
@@ -56,7 +56,7 @@ router.post('/', async function (req, res) {
 	try {
 		const body = filterBody(req)
 		const user = await User.create(body)
-		success(res, '创建用户成功。', { user }, 201)
+		success(res, '创建用户成功', { user }, 201)
 	} catch (error) {
 		failure(res, error)
 	}
@@ -69,7 +69,7 @@ router.post('/', async function (req, res) {
 router.get('/:id', async function (req, res) {
 	try {
 		const user = await getUser(req)
-		success(res, '查询用户成功。', { user })
+		success(res, '查询用户成功', { user })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -84,7 +84,7 @@ router.put('/:id', async function (req, res) {
 		const user = await getUser(req)
 		const body = filterBody(req)
 		await user.update(body)
-		success(res, '更新用户成功。', { user })
+		success(res, '更新用户成功', { user })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -98,7 +98,7 @@ router.delete('/:id', async function (req, res) {
 	try {
 		const user = await getUser(req)
 		await user.destroy()
-		success(res, '删除用户成功。')
+		success(res, '删除用户成功')
 	} catch (error) {
 		failure(res, error)
 	}
@@ -112,7 +112,7 @@ async function getUser(req) {
 	const user = await User.findByPk(id)
 
 	if (!user) {
-		throw new NotFoundError(`ID: ${id}的用户未找到。`)
+		throw new NotFoundError(`ID: ${id}的用户未找到`)
 	}
 
 	return user

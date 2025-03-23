@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '用户ID必须存在。',
+						msg: '用户ID必须存在',
 					},
 				},
 				comment: '用户ID，外键，关联users表',
@@ -38,11 +38,11 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '积分必须存在。',
+						msg: '积分必须存在',
 					},
 					min: {
 						args: [0],
-						msg: '积分不能为负数。',
+						msg: '积分不能为负数',
 					},
 				},
 				comment: '积分，非空、无符号',
@@ -52,10 +52,10 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '获得积分时间必须存在。',
+						msg: '获得积分时间必须存在',
 					},
 					isDate: {
-						msg: '请输入有效的日期时间。',
+						msg: '请输入有效的日期时间',
 					},
 				},
 				comment: '获得积分时间，非空',
@@ -64,7 +64,7 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			sequelize,
 			modelName: 'Point',
-		}
+		},
 	)
 	return Point
 }

@@ -25,7 +25,7 @@ module.exports = {
 					updatedAt: new Date(),
 				},
 			],
-			{}
+			{},
 		)
 
 		// 更新活动的参与者数量

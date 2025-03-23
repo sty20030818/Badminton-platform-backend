@@ -62,7 +62,7 @@ router.get('/', async function (req, res) {
 		const { count, rows } = await Event.findAndCountAll(condition)
 
 		//* 返回查询结果
-		success(res, '查询活动列表成功。', {
+		success(res, '查询活动列表成功', {
 			events: rows,
 			pagination: {
 				total: count,
@@ -83,7 +83,7 @@ router.get('/:id', async function (req, res) {
 	try {
 		const event = await getEvent(req)
 
-		success(res, '查询活动成功。', { event })
+		success(res, '查询活动成功', { event })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -104,7 +104,7 @@ router.post('/', async function (req, res) {
 		if (body.venueId) {
 			const venue = await Venue.findByPk(body.venueId)
 			if (!venue) {
-				throw new NotFoundError(`ID: ${body.venueId}的场地未找到。`)
+				throw new NotFoundError(`ID: ${body.venueId}的场地未找到`)
 			}
 		}
 
@@ -114,7 +114,7 @@ router.post('/', async function (req, res) {
 		// 重新查询活动信息，包含关联数据
 		const eventWithDetails = await getEvent(event.id)
 
-		success(res, '创建活动成功。', { event: eventWithDetails }, 201)
+		success(res, '创建活动成功', { event: eventWithDetails }, 201)
 	} catch (error) {
 		failure(res, error)
 	}
@@ -130,7 +130,7 @@ router.put('/:id', async function (req, res) {
 		const body = filterBody(req)
 
 		await event.update(body)
-		success(res, '更新活动成功。', { event })
+		success(res, '更新活动成功', { event })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -145,7 +145,7 @@ router.delete('/:id', async function (req, res) {
 		const event = await getEvent(req)
 
 		await event.destroy()
-		success(res, '删除活动成功。')
+		success(res, '删除活动成功')
 	} catch (error) {
 		failure(res, error)
 	}
@@ -175,7 +175,7 @@ async function getEvent(reqOrId) {
 
 	//* 如果没有找到，就抛出异常
 	if (!event) {
-		throw new NotFoundError(`ID: ${id}的活动未找到。`)
+		throw new NotFoundError(`ID: ${id}的活动未找到`)
 	}
 
 	return event

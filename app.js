@@ -3,14 +3,16 @@ const path = require('path')
 const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 const adminAuth = require('./middlewares/admin-auth')
+const auth = require('./middlewares/auth')
 const cors = require('cors')
 
 require('dotenv').config()
 
+//* 前台路由文件
 const indexRouter = require('./routes/index')
-const usersRouter = require('./routes/users')
-
-// 后台路由文件
+const userRouter = require('./routes/user')
+const authRouter = require('./routes/auth')
+//* 后台路由文件
 const adminEventsRouter = require('./routes/admin/events')
 const adminVenuesRouter = require('./routes/admin/venues')
 const adminUsersRouter = require('./routes/admin/users')
@@ -43,22 +45,24 @@ const corsOptions = {
 		'Authorization',
 		'X-Requested-With',
 		'Accept',
-		'Origin'
+		'Origin',
 	],
 	exposedHeaders: ['Content-Range', 'X-Content-Range'],
-	maxAge: 86400 // 预检请求的结果缓存24小时
+	maxAge: 86400, // 预检请求的结果缓存24小时
 }
 app.use(cors(corsOptions))
 
+//* 前台路由配置
+app.use('/auth', authRouter)
 app.use('/', indexRouter)
-app.use('/users', usersRouter)
+app.use('/user', auth, userRouter)
 
-// 后台路由配置
+//* 后台路由配置
+app.use('/admin/auth', adminAuthRouter)
+app.use('/admin/users', adminAuth, adminUsersRouter)
 app.use('/admin/events', adminAuth, adminEventsRouter)
 app.use('/admin/venues', adminAuth, adminVenuesRouter)
-app.use('/admin/users', adminAuth, adminUsersRouter)
 app.use('/admin/groups', adminAuth, adminGroupsRouter)
 // app.use('/admin/points', adminAuth, adminPointsRouter)
 // app.use('/admin/ratings', adminAuth, adminRatingsRouter)
-app.use('/admin/auth', adminAuthRouter)
 module.exports = app

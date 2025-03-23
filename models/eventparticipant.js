@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '活动ID必须存在。',
+						msg: '活动ID必须存在',
 					},
 				},
 				comment: '活动ID，外键，关联events表',
@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				validate: {
 					notNull: {
-						msg: '用户ID必须存在。',
+						msg: '用户ID必须存在',
 					},
 				},
 				comment: '用户ID，外键，关联users表',
@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			sequelize,
 			modelName: 'EventParticipant',
-		}
+		},
 	)
 	return EventParticipant
 }

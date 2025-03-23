@@ -48,14 +48,20 @@ module.exports = (sequelize, DataTypes) => {
 				unique: true,
 				validate: {
 					notNull: {
-						msg: '用户名必须存在。',
+						msg: '用户名必须存在',
 					},
 					notEmpty: {
-						msg: '用户名不能为空。',
+						msg: '用户名不能为空',
 					},
 					len: {
 						args: [2, 20],
-						msg: '用户名长度需要在2 ~ 20个字符之间。',
+						msg: '用户名长度需要在2 ~ 20个字符之间',
+					},
+					async isUnique(value) {
+						const user = await User.findOne({ where: { username: value } })
+						if (user) {
+							throw new Error('用户名已经存在')
+						}
 					},
 				},
 				comment: '用户名，唯一且非空',
@@ -65,7 +71,7 @@ module.exports = (sequelize, DataTypes) => {
 				validate: {
 					len: {
 						args: [0, 20],
-						msg: '昵称长度不能超过20个字符。',
+						msg: '昵称长度不能超过20个字符',
 					},
 				},
 				comment: '昵称',
@@ -76,12 +82,12 @@ module.exports = (sequelize, DataTypes) => {
 				set(value) {
 					// 检查是否为空
 					if (!value) {
-						throw new Error('密码必须填写。')
+						throw new Error('密码必须填写')
 					}
 
 					// 检查长度
-					if (value.length < 6 || value.length > 45) {
-						throw new Error('密码长度必须是6 ~ 45之间。')
+					if (value.length < 6 || value.length > 20) {
+						throw new Error('密码长度必须是6 ~ 20之间')
 					}
 
 					// 如果通过所有验证，进行hash处理并设置值
@@ -95,10 +101,16 @@ module.exports = (sequelize, DataTypes) => {
 				unique: true,
 				validate: {
 					notNull: {
-						msg: '邮箱必须存在。',
+						msg: '邮箱必须存在',
 					},
 					isEmail: {
-						msg: '请输入有效的邮箱地址。',
+						msg: '请输入有效的邮箱地址',
+					},
+					async isUnique(value) {
+						const user = await User.findOne({ where: { email: value } })
+						if (user) {
+							throw new Error('邮箱已经存在')
+						}
 					},
 				},
 				comment: '邮箱，唯一且非空',
@@ -110,18 +122,18 @@ module.exports = (sequelize, DataTypes) => {
 				validate: {
 					isIn: {
 						args: [[0, 1, 2]],
-						msg: '性别只能是0（女）、1（男）或2（保密）。',
+						msg: '性别只能是0（女）、1（男）或2（保密）',
 					},
 				},
 				comment: '性别，非空且无符号，默认值为2',
 			},
 			avatar: {
 				type: DataTypes.STRING,
-				validate: {
-					isUrl: {
-						msg: '头像必须是有效的URL地址。',
-					},
-				},
+				// validate: {
+				// 	isUrl: {
+				// 		msg: '头像必须是有效的URL地址',
+				// 	},
+				// },
 				comment: '头像',
 			},
 			introduce: {
@@ -129,7 +141,7 @@ module.exports = (sequelize, DataTypes) => {
 				validate: {
 					len: {
 						args: [0, 500],
-						msg: '个人介绍不能超过500个字符。',
+						msg: '个人介绍不能超过500个字符',
 					},
 				},
 				comment: '个人介绍',
@@ -141,7 +153,7 @@ module.exports = (sequelize, DataTypes) => {
 				validate: {
 					isIn: {
 						args: [[0, 100]],
-						msg: '角色只能是0（普通用户）或100（管理员）。',
+						msg: '角色只能是0（普通用户）或100（管理员）',
 					},
 				},
 				comment: '角色，非空、无符号，默认值为0',
@@ -150,7 +162,7 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			sequelize,
 			modelName: 'User',
-		}
+		},
 	)
 	return User
 }
