@@ -23,15 +23,18 @@ router.get('/', async function (req, res) {
 			attributes: {
 				exclude: ['password'],
 			},
+			where: {},
 		}
 
-		if (query.username) {
-			condition.where = {
-				username: {
-					[Op.like]: `%${query.username}%`,
-				},
+		const searchFields = ['username', 'nickname', 'email', 'phone']
+
+		searchFields.forEach((field) => {
+			if (query[field]) {
+				condition.where[field] = {
+					[Op.like]: `%${query[field]}%`,
+				}
 			}
-		}
+		})
 
 		const { count, rows } = await User.findAndCountAll(condition)
 
@@ -125,23 +128,29 @@ async function getUser(req) {
  *   username: string,
  *   nickname: string,
  *   password: string,
+ *   phone: string,
  *   email: string,
  *   gender: number,
  *   avatar: string,
  *   introduce: string,
  *   role: number
+ *   level: number
+ *   creditScore: number
  * }}
  */
 function filterBody(req) {
 	return {
 		username: req.body.username,
-		nickname: req.body.nickname,
+		nickname: req.body.nickname || '用户',
 		password: req.body.password,
+		phone: req.body.phone,
 		email: req.body.email,
 		gender: req.body.gender || 2,
-		avatar: req.body.avatar,
-		introduce: req.body.introduce,
+		avatar: req.body.avatar || 'user',
+		introduce: req.body.introduce || '这个人很懒，什么都没有留下',
 		role: req.body.role || 0,
+		level: req.body.level || 1,
+		creditScore: req.body.creditScore || 100,
 	}
 }
 

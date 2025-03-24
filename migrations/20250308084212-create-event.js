@@ -1,82 +1,123 @@
 'use strict'
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-	async up(queryInterface, Sequelize) {
-		await queryInterface.createTable('Events', {
+	up: async (queryInterface, Sequelize) => {
+		await queryInterface.createTable('events', {
 			id: {
-				allowNull: false,
-				autoIncrement: true,
-				primaryKey: true,
 				type: Sequelize.INTEGER.UNSIGNED,
-				comment: '活动ID,主键',
+				primaryKey: true,
+				autoIncrement: true,
+				comment: '活动ID，主键',
 			},
-			name: {
+			title: {
 				type: Sequelize.STRING,
 				allowNull: false,
-				comment: '活动名称,非空',
+				comment: '活动标题，非空',
 			},
 			description: {
 				type: Sequelize.TEXT,
+				allowNull: true,
 				comment: '活动描述',
 			},
-			time: {
+			cover: {
+				type: Sequelize.STRING,
+				allowNull: true,
+				comment: '活动封面图片URL',
+			},
+			type: {
+				type: Sequelize.STRING,
+				allowNull: false,
+				defaultValue: '羽毛球',
+				comment: '活动类型（例如：羽毛球,篮球等）',
+			},
+			difficulty: {
+				type: Sequelize.INTEGER,
+				allowNull: false,
+				defaultValue: 0,
+				comment: '活动难度等级，非空，范围0-10',
+			},
+			startTime: {
 				type: Sequelize.DATE,
 				allowNull: false,
-				comment: '活动时间,非空',
+				comment: '活动开始时间，非空',
 			},
-			venueId: {
-				type: Sequelize.INTEGER.UNSIGNED,
+			endTime: {
+				type: Sequelize.DATE,
 				allowNull: false,
-				comment: '场地ID,外键,关联venues表',
-				references: {
-					model: 'Venues',
-					key: 'id',
-				},
-				onUpdate: 'CASCADE',
-				onDelete: 'RESTRICT',
+				comment: '活动结束时间，非空',
+			},
+			regStart: {
+				type: Sequelize.DATE,
+				allowNull: false,
+				comment: '报名开始时间，非空',
+			},
+			regEnd: {
+				type: Sequelize.DATE,
+				allowNull: false,
+				comment: '报名结束时间，非空',
+			},
+			capacity: {
+				type: Sequelize.INTEGER,
+				allowNull: false,
+				comment: '活动容量，非空',
+			},
+			feeType: {
+				type: Sequelize.STRING,
+				allowNull: false,
+				defaultValue: '免费',
+				comment: '费用类型：免费、AA制、固定费用',
+			},
+			feeAmount: {
+				type: Sequelize.DECIMAL(10, 2),
+				allowNull: true,
+				comment: '费用金额，当feeType为固定费用时必填',
+			},
+			status: {
+				type: Sequelize.STRING,
+				allowNull: false,
+				defaultValue: '公开',
+				comment: '活动状态：公开、私密、需要申请',
 			},
 			creatorId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '创建者ID,外键,关联users表',
 				references: {
 					model: 'Users',
 					key: 'id',
 				},
-				onUpdate: 'CASCADE',
-				onDelete: 'RESTRICT',
+				comment: '创建者ID，外键，关联users表',
 			},
-			participants: {
+			venueId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				defaultValue: 0,
-				comment: '参与者数量,非空,无符号,默认值为0',
-			},
-			difficulty: {
-				type: Sequelize.INTEGER.UNSIGNED,
-				allowNull: false,
-				defaultValue: 0,
-				comment: '活动难度等级,非空,无符号',
-			},
-			eventType: {
-				type: Sequelize.STRING,
-				comment: '活动类型（例如：羽毛球,篮球等）',
-			},
-			registrationDeadline: {
-				type: Sequelize.DATE,
-				comment: '报名截止日期',
+				references: {
+					model: 'Venues',
+					key: 'id',
+				},
+				comment: '场馆ID，外键，关联venues表',
 			},
 			createdAt: {
-				allowNull: false,
 				type: Sequelize.DATE,
+				allowNull: false,
+				comment: '创建时间',
 			},
 			updatedAt: {
-				allowNull: false,
 				type: Sequelize.DATE,
+				allowNull: false,
+				comment: '更新时间',
 			},
 		})
+
+		// 添加索引
+		await queryInterface.addIndex('events', ['creatorId'])
+		await queryInterface.addIndex('events', ['venueId'])
+		await queryInterface.addIndex('events', ['startTime'])
+		await queryInterface.addIndex('events', ['status'])
+		await queryInterface.addIndex('events', ['type'])
+		await queryInterface.addIndex('events', ['difficulty'])
 	},
-	async down(queryInterface, Sequelize) {
-		await queryInterface.dropTable('Events')
+
+	down: async (queryInterface, Sequelize) => {
+		await queryInterface.dropTable('events')
 	},
 }

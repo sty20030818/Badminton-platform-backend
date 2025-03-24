@@ -2,52 +2,59 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
 	async up(queryInterface, Sequelize) {
-		await queryInterface.createTable('GroupMembers', {
+		await queryInterface.createTable('group_members', {
 			id: {
-				allowNull: false,
-				autoIncrement: true,
-				primaryKey: true,
 				type: Sequelize.INTEGER.UNSIGNED,
-				comment: '成员ID，主键',
+				primaryKey: true,
+				autoIncrement: true,
+				comment: '成员ID',
 			},
 			groupId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '小组ID，外键，关联groups表',
 				references: {
 					model: 'Groups',
 					key: 'id',
 				},
-				onUpdate: 'NO ACTION',
-				onDelete: 'NO ACTION',
+				onUpdate: 'CASCADE',
+				onDelete: 'CASCADE',
+				comment: '群组ID',
 			},
 			userId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '用户ID，外键，关联users表',
 				references: {
 					model: 'Users',
 					key: 'id',
 				},
-				onUpdate: 'NO ACTION',
-				onDelete: 'NO ACTION',
+				onUpdate: 'CASCADE',
+				onDelete: 'CASCADE',
+				comment: '用户ID',
 			},
 			createdAt: {
-				allowNull: false,
 				type: Sequelize.DATE,
+				allowNull: false,
+				defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+				comment: '创建时间',
 			},
 			updatedAt: {
-				allowNull: false,
 				type: Sequelize.DATE,
+				allowNull: false,
+				defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+				comment: '更新时间',
 			},
 		})
 
 		// 添加索引
-		await queryInterface.addIndex('GroupMembers', ['groupId'])
-		await queryInterface.addIndex('GroupMembers', ['userId'])
+		await queryInterface.addIndex('group_members', ['groupId'], {
+			name: 'group_members_group_index',
+		})
+		await queryInterface.addIndex('group_members', ['userId'], {
+			name: 'group_members_user_index',
+		})
 	},
 
 	async down(queryInterface, Sequelize) {
-		await queryInterface.dropTable('GroupMembers')
+		await queryInterface.dropTable('group_members')
 	},
 }

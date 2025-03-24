@@ -4,11 +4,6 @@ const bcrypt = require('bcryptjs')
 
 module.exports = (sequelize, DataTypes) => {
 	class User extends Model {
-		/**
-		 * Helper method for defining associations.
-		 * This method is not a part of Sequelize lifecycle.
-		 * The `models/index` file will call this method automatically.
-		 */
 		static associate(models) {
 			// 定义关联关系
 			User.hasMany(models.Event, {
@@ -25,12 +20,6 @@ module.exports = (sequelize, DataTypes) => {
 				through: 'GroupMembers',
 				foreignKey: 'userId',
 				as: 'groups',
-			})
-
-			User.belongsToMany(models.Event, {
-				through: 'EventParticipants',
-				foreignKey: 'userId',
-				as: 'participatedEvents',
 			})
 		}
 	}
@@ -79,13 +68,23 @@ module.exports = (sequelize, DataTypes) => {
 			password: {
 				type: DataTypes.STRING,
 				allowNull: false,
+				validate: {
+					notNull: {
+						msg: '密码必须填写',
+					},
+					notEmpty: {
+						msg: '密码不能为空',
+					},
+					len: {
+						args: [6, 20],
+						msg: '密码长度必须是6 ~ 20之间',
+					},
+				},
 				set(value) {
-					// 检查是否为空
 					if (!value) {
 						throw new Error('密码必须填写')
 					}
 
-					// 检查长度
 					if (value.length < 6 || value.length > 20) {
 						throw new Error('密码长度必须是6 ~ 20之间')
 					}
@@ -94,6 +93,21 @@ module.exports = (sequelize, DataTypes) => {
 					this.setDataValue('password', bcrypt.hashSync(value, 10))
 				},
 				comment: '密码，非空',
+			},
+			phone: {
+				type: DataTypes.STRING(11),
+				allowNull: true,
+				validate: {
+					is: {
+						args: /^1[3-9]\d{9}$/,
+						msg: '请输入有效的手机号',
+					},
+					len: {
+						args: [11],
+						msg: '手机号必须是11位数字',
+					},
+				},
+				comment: '手机号，11位数字',
 			},
 			email: {
 				type: DataTypes.STRING,
@@ -147,7 +161,7 @@ module.exports = (sequelize, DataTypes) => {
 				comment: '个人介绍',
 			},
 			role: {
-				type: DataTypes.TINYINT.UNSIGNED,
+				type: DataTypes.INTEGER,
 				allowNull: false,
 				defaultValue: 0,
 				validate: {
@@ -156,7 +170,45 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '角色只能是0（普通用户）或100（管理员）',
 					},
 				},
-				comment: '角色，非空、无符号，默认值为0',
+				comment: '用户角色，0普通用户，100管理员',
+			},
+			level: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+				defaultValue: 1,
+				validate: {
+					isInt: {
+						msg: '等级必须是整数',
+					},
+					min: {
+						args: [1],
+						msg: '等级不能小于1',
+					},
+					max: {
+						args: [5],
+						msg: '等级不能大于5',
+					},
+				},
+				comment: '用户等级，1-5级',
+			},
+			creditScore: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+				defaultValue: 100,
+				validate: {
+					isInt: {
+						msg: '信用评分必须是整数',
+					},
+					min: {
+						args: [0],
+						msg: '信用评分不能小于0',
+					},
+					max: {
+						args: [100],
+						msg: '信用评分不能大于100',
+					},
+				},
+				comment: '信用评分，0-100分',
 			},
 		},
 		{

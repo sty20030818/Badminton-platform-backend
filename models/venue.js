@@ -59,13 +59,92 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			description: {
 				type: DataTypes.TEXT,
+				allowNull: true,
 				validate: {
 					len: {
 						args: [0, 500],
-						msg: '场地详情不能超过500个字符',
+						msg: '场馆描述不能超过500个字符',
 					},
 				},
-				comment: '场地详情',
+				comment: '场馆描述',
+			},
+			cover: {
+				type: DataTypes.STRING,
+				allowNull: true,
+				comment: '场馆封面图片URL',
+			},
+			latitude: {
+				type: DataTypes.DECIMAL(10, 6),
+				allowNull: true,
+				validate: {
+					isDecimal: {
+						msg: '纬度必须是数字',
+					},
+					min: {
+						args: [-90],
+						msg: '纬度不能小于-90',
+					},
+					max: {
+						args: [90],
+						msg: '纬度不能大于90',
+					},
+				},
+				comment: '场馆纬度',
+			},
+			longitude: {
+				type: DataTypes.DECIMAL(10, 6),
+				allowNull: true,
+				validate: {
+					isDecimal: {
+						msg: '经度必须是数字',
+					},
+					min: {
+						args: [-180],
+						msg: '经度不能小于-180',
+					},
+					max: {
+						args: [180],
+						msg: '经度不能大于180',
+					},
+				},
+				comment: '场馆经度',
+			},
+			openTime: {
+				type: DataTypes.TIME,
+				allowNull: false,
+				defaultValue: '08:00:00',
+				validate: {
+					isTime: (value) => {
+						if (!/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(value)) {
+							throw new Error('请输入有效的开放时间，格式为HH:mm:ss')
+						}
+					},
+				},
+				comment: '场馆开放时间，格式HH:mm:ss',
+			},
+			closeTime: {
+				type: DataTypes.TIME,
+				allowNull: false,
+				defaultValue: '22:00:00',
+				validate: {
+					isTime: (value) => {
+						if (!/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(value)) {
+							throw new Error('请输入有效的关闭时间，格式为HH:mm:ss')
+						}
+					},
+					isAfterOpenTime(value) {
+						if (value && this.openTime) {
+							const close = value.split(':').map(Number)
+							const open = this.openTime.split(':').map(Number)
+							const closeSeconds = close[0] * 3600 + close[1] * 60 + close[2]
+							const openSeconds = open[0] * 3600 + open[1] * 60 + open[2]
+							if (closeSeconds <= openSeconds) {
+								throw new Error('关闭时间必须晚于开放时间')
+							}
+						}
+					},
+				},
+				comment: '场馆关闭时间，格式HH:mm:ss',
 			},
 			status: {
 				type: DataTypes.STRING,

@@ -22,12 +22,40 @@ module.exports = {
 			},
 			description: {
 				type: Sequelize.TEXT,
-				comment: '场地详情',
+				allowNull: true,
+				comment: '场馆描述',
 			},
 			status: {
 				type: Sequelize.STRING,
 				allowNull: false,
 				comment: '场馆状态，非空',
+			},
+			cover: {
+				type: Sequelize.STRING,
+				allowNull: true,
+				comment: '场馆封面图片URL',
+			},
+			latitude: {
+				type: Sequelize.DECIMAL(10, 6),
+				allowNull: true,
+				comment: '场馆纬度',
+			},
+			longitude: {
+				type: Sequelize.DECIMAL(10, 6),
+				allowNull: true,
+				comment: '场馆经度',
+			},
+			openTime: {
+				type: Sequelize.TIME,
+				allowNull: false,
+				defaultValue: '08:00:00',
+				comment: '场馆开放时间，格式HH:mm:ss',
+			},
+			closeTime: {
+				type: Sequelize.TIME,
+				allowNull: false,
+				defaultValue: '22:00:00',
+				comment: '场馆关闭时间，格式HH:mm:ss',
 			},
 			createdAt: {
 				allowNull: false,

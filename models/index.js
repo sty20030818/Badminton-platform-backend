@@ -1,42 +1,42 @@
 'use strict'
 
-const fs = require('fs')
-const path = require('path')
 const Sequelize = require('sequelize')
-const process = require('process')
-const basename = path.basename(__filename)
 const env = process.env.NODE_ENV || 'development'
-const config = require(__dirname + '/../config/config.json')[env]
-const db = {}
+const config = require('../config/config.json')[env]
 
-let sequelize
-if (config.use_env_variable) {
-	sequelize = new Sequelize(process.env[config.use_env_variable], config)
-} else {
-	sequelize = new Sequelize(config.database, config.username, config.password, config)
+// 创建 Sequelize 实例
+const sequelize = config.use_env_variable
+	? new Sequelize(process.env[config.use_env_variable], config)
+	: new Sequelize(config.database, config.username, config.password, config)
+
+// 导入模型
+const User = require('./user')
+const Event = require('./event')
+const Venue = require('./venue')
+const Group = require('./group')
+const GroupMember = require('./groupmember')
+const EventComment = require('./eventcomment')
+
+// 初始化所有模型
+const models = {
+	User: User(sequelize, Sequelize.DataTypes),
+	Event: Event(sequelize, Sequelize.DataTypes),
+	Venue: Venue(sequelize, Sequelize.DataTypes),
+	Group: Group(sequelize, Sequelize.DataTypes),
+	GroupMember: GroupMember(sequelize, Sequelize.DataTypes),
+	EventComment: EventComment(sequelize, Sequelize.DataTypes),
 }
 
-fs.readdirSync(__dirname)
-	.filter((file) => {
-		return (
-			file.indexOf('.') !== 0 &&
-			file !== basename &&
-			file.slice(-3) === '.js' &&
-			file.indexOf('.test.js') === -1
-		)
-	})
-	.forEach((file) => {
-		const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes)
-		db[model.name] = model
-	})
-
-Object.keys(db).forEach((modelName) => {
-	if (db[modelName].associate) {
-		db[modelName].associate(db)
+// 建立模型之间的关联关系
+Object.values(models).forEach((model) => {
+	if (model.associate) {
+		model.associate(models)
 	}
 })
 
-db.sequelize = sequelize
-db.Sequelize = Sequelize
-
-module.exports = db
+// 导出模型和 Sequelize 实例
+module.exports = {
+	...models,
+	sequelize,
+	Sequelize,
+}

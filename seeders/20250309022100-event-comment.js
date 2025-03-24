@@ -4,39 +4,42 @@
 module.exports = {
 	async up(queryInterface, Sequelize) {
 		await queryInterface.bulkInsert(
-			'EventParticipants',
+			'event_comments',
 			[
 				{
-					eventId: 1,
+					content: '这个活动很不错，场地很好，推荐参加！',
 					userId: 2,
-					createdAt: new Date(),
-					updatedAt: new Date(),
-				},
-				{
 					eventId: 1,
-					userId: 3,
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},
 				{
+					content: '组织得很好，希望能多举办这样的活动。',
+					userId: 3,
+					eventId: 1,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+				{
+					content: '适合新手参加，氛围很好。',
+					userId: 2,
 					eventId: 2,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+				{
+					content: '场地设施很完善，下次还会来。',
 					userId: 1,
+					eventId: 3,
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},
 			],
 			{},
 		)
-
-		// 更新活动的参与者数量
-		await queryInterface.bulkUpdate('Events', { participants: 2 }, { id: 1 })
-		await queryInterface.bulkUpdate('Events', { participants: 1 }, { id: 2 })
 	},
 
 	async down(queryInterface, Sequelize) {
-		// 先重置参与者数量
-		await queryInterface.bulkUpdate('Events', { participants: 0 }, { id: [1, 2] })
-		// 然后删除参与记录
-		await queryInterface.bulkDelete('EventParticipants', null, {})
+		await queryInterface.bulkDelete('event_comments', null, {})
 	},
 }

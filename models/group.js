@@ -1,12 +1,8 @@
 'use strict'
 const { Model } = require('sequelize')
+
 module.exports = (sequelize, DataTypes) => {
 	class Group extends Model {
-		/**
-		 * Helper method for defining associations.
-		 * This method is not a part of Sequelize lifecycle.
-		 * The `models/index` file will call this method automatically.
-		 */
 		static associate(models) {
 			// 定义关联关系
 			Group.belongsTo(models.Event, {
@@ -24,10 +20,11 @@ module.exports = (sequelize, DataTypes) => {
 			})
 		}
 	}
+
 	Group.init(
 		{
 			id: {
-				type: DataTypes.INTEGER.UNSIGNED,
+				type: DataTypes.INTEGER,
 				primaryKey: true,
 				autoIncrement: true,
 				comment: '小组ID，主键',
@@ -49,23 +46,82 @@ module.exports = (sequelize, DataTypes) => {
 				},
 				comment: '小组名称，非空',
 			},
+			description: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+				validate: {
+					len: {
+						args: [0, 200],
+						msg: '小组描述不能超过200个字符',
+					},
+				},
+				comment: '小组描述',
+			},
+			capacity: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+				defaultValue: 6,
+				validate: {
+					notNull: {
+						msg: '小组容量必须存在',
+					},
+					isInt: {
+						msg: '小组容量必须是整数',
+					},
+					min: {
+						args: [2],
+						msg: '小组容量必须大于等于2人',
+					},
+					max: {
+						args: [12],
+						msg: '小组容量不能超过12人',
+					},
+				},
+				comment: '小组容量，非空，默认6人',
+			},
+			status: {
+				type: DataTypes.STRING,
+				allowNull: false,
+				defaultValue: '公开',
+				validate: {
+					notNull: {
+						msg: '小组状态必须存在',
+					},
+					notEmpty: {
+						msg: '小组状态不能为空',
+					},
+					isIn: {
+						args: [['公开', '私密', '需要申请', '关闭']],
+						msg: '小组状态必须是：公开、私密、需要申请、关闭之一',
+					},
+				},
+				comment: '小组状态：公开、私密、关闭',
+			},
 			eventId: {
-				type: DataTypes.INTEGER.UNSIGNED,
+				type: DataTypes.INTEGER,
 				allowNull: false,
 				validate: {
 					notNull: {
 						msg: '活动ID必须存在',
 					},
 				},
+				references: {
+					model: 'Events',
+					key: 'id',
+				},
 				comment: '活动ID，外键，关联events表',
 			},
 			creatorId: {
-				type: DataTypes.INTEGER.UNSIGNED,
+				type: DataTypes.INTEGER,
 				allowNull: false,
 				validate: {
 					notNull: {
 						msg: '创建者ID必须存在',
 					},
+				},
+				references: {
+					model: 'Users',
+					key: 'id',
 				},
 				comment: '创建者ID，外键，关联users表',
 			},
@@ -73,7 +129,10 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			sequelize,
 			modelName: 'Group',
+			tableName: 'groups',
+			timestamps: true,
 		},
 	)
+
 	return Group
 }
