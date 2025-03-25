@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { Rating, User } = require('../../models')
 const { Op } = require('sequelize')
-const { NotFoundError } = require('../../utils/errors')
+const { NotFound } = require('http-errors')
 const { success, failure } = require('../../utils/responses')
 
 /**
@@ -142,7 +142,7 @@ async function getRating(req) {
 	})
 
 	if (!rating) {
-		throw new NotFoundError(`ID: ${id}的评分记录未找到`)
+		throw new NotFound(`ID: ${id}的评分记录未找到`)
 	}
 
 	return rating

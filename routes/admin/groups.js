@@ -2,12 +2,12 @@ const express = require('express')
 const router = express.Router()
 const { Group, User, GroupMember } = require('../../models')
 const { Op } = require('sequelize')
-const { NotFoundError } = require('../../utils/errors')
+const { NotFound } = require('http-errors')
 const { success, failure } = require('../../utils/responses')
 
 /**
- * 查询小组列表
- * GET /admin/groups
+ ** 查询小组列表
+ ** GET /admin/groups
  */
 router.get('/', async function (req, res) {
 	try {
@@ -24,7 +24,7 @@ router.get('/', async function (req, res) {
 				{
 					model: User,
 					as: 'creator',
-					attributes: ['id', 'username'],
+					attributes: ['id', 'username', 'email'],
 				},
 			],
 		}
@@ -53,8 +53,8 @@ router.get('/', async function (req, res) {
 })
 
 /**
- * 查询小组详情
- * GET /admin/groups/:id
+ ** 查询小组详情
+ ** GET /admin/groups/:id
  */
 router.get('/:id', async function (req, res) {
 	try {
@@ -66,8 +66,8 @@ router.get('/:id', async function (req, res) {
 })
 
 /**
- * 创建小组
- * POST /admin/groups
+ ** 创建小组
+ ** POST /admin/groups
  */
 router.post('/', async function (req, res) {
 	try {
@@ -83,8 +83,8 @@ router.post('/', async function (req, res) {
 })
 
 /**
- * 更新小组
- * PUT /admin/groups/:id
+ ** 更新小组
+ ** PUT /admin/groups/:id
  */
 router.put('/:id', async function (req, res) {
 	try {
@@ -98,8 +98,8 @@ router.put('/:id', async function (req, res) {
 })
 
 /**
- * 删除小组
- * DELETE /admin/groups/:id
+ ** 删除小组
+ ** DELETE /admin/groups/:id
  */
 router.delete('/:id', async function (req, res) {
 	try {
@@ -112,8 +112,8 @@ router.delete('/:id', async function (req, res) {
 })
 
 /**
- * 查询小组成员列表
- * GET /admin/groups/:id/members
+ ** 查询小组成员列表
+ ** GET /admin/groups/:id/members
  */
 router.get('/:id/members', async function (req, res) {
 	try {
@@ -155,8 +155,8 @@ router.get('/:id/members', async function (req, res) {
 })
 
 /**
- * 添加小组成员
- * POST /admin/groups/:id/members
+ ** 添加小组成员
+ ** POST /admin/groups/:id/members
  */
 router.post('/:id/members', async function (req, res) {
 	try {
@@ -166,13 +166,13 @@ router.post('/:id/members', async function (req, res) {
 		// 检查小组是否存在
 		const group = await Group.findByPk(groupId)
 		if (!group) {
-			throw new NotFoundError('小组不存在')
+			throw new NotFound('小组不存在')
 		}
 
 		// 检查用户是否存在
 		const user = await User.findByPk(userId)
 		if (!user) {
-			throw new NotFoundError('用户不存在')
+			throw new NotFound('用户不存在')
 		}
 
 		// 检查用户是否已经是小组成员
@@ -180,7 +180,7 @@ router.post('/:id/members', async function (req, res) {
 			where: { groupId, userId },
 		})
 		if (existingMember) {
-			throw new Error('该用户已经是小组成员')
+			throw Conflict('该用户已经是小组成员')
 		}
 
 		// 创建小组成员关系
@@ -193,8 +193,8 @@ router.post('/:id/members', async function (req, res) {
 })
 
 /**
- * 移除小组成员
- * DELETE /admin/groups/:groupId/members/:userId
+ ** 移除小组成员
+ ** DELETE /admin/groups/:groupId/members/:userId
  */
 router.delete('/:groupId/members/:userId', async function (req, res) {
 	try {
@@ -204,7 +204,7 @@ router.delete('/:groupId/members/:userId', async function (req, res) {
 		})
 
 		if (!member) {
-			throw new NotFoundError('该用户不是小组成员')
+			throw new NotFound('该用户不是小组成员')
 		}
 
 		await member.destroy()
@@ -215,7 +215,7 @@ router.delete('/:groupId/members/:userId', async function (req, res) {
 })
 
 /**
- * 公共方法：查询当前小组
+ ** 公共方法：查询当前小组
  */
 async function getGroup(req) {
 	const { id } = req.params
@@ -224,20 +224,20 @@ async function getGroup(req) {
 			{
 				model: User,
 				as: 'creator',
-				attributes: ['id', 'username'],
+				attributes: ['id', 'username', 'email'],
 			},
 		],
 	})
 
 	if (!group) {
-		throw new NotFoundError(`ID: ${id}的小组未找到`)
+		throw new NotFound(`ID: ${id}的小组未找到`)
 	}
 
 	return group
 }
 
 /**
- * 公共方法：白名单过滤
+ ** 公共方法：白名单过滤
  * @param req
  * @returns {{
  *   name: string,

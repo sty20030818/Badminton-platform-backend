@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { User } = require('../../models')
 const { Op } = require('sequelize')
-const { NotFoundError } = require('../../utils/errors')
+const { NotFound } = require('http-errors')
 const { success, failure } = require('../../utils/responses')
 
 /**
@@ -52,14 +52,13 @@ router.get('/', async function (req, res) {
 })
 
 /**
- * 创建用户
- * POST /admin/users
+ * 查询当前登录的用户详情
+ * GET /admin/users/me
  */
-router.post('/', async function (req, res) {
+router.get('/me', async function (req, res) {
 	try {
-		const body = filterBody(req)
-		const user = await User.create(body)
-		success(res, '创建用户成功', { user }, 201)
+		const user = req.user
+		success(res, '查询当前用户信息成功。', { user })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -73,6 +72,20 @@ router.get('/:id', async function (req, res) {
 	try {
 		const user = await getUser(req)
 		success(res, '查询用户成功', { user })
+	} catch (error) {
+		failure(res, error)
+	}
+})
+
+/**
+ * 创建用户
+ * POST /admin/users
+ */
+router.post('/', async function (req, res) {
+	try {
+		const body = filterBody(req)
+		const user = await User.create(body)
+		success(res, '创建用户成功', { user }, 201)
 	} catch (error) {
 		failure(res, error)
 	}
@@ -115,7 +128,7 @@ async function getUser(req) {
 	const user = await User.findByPk(id)
 
 	if (!user) {
-		throw new NotFoundError(`ID: ${id}的用户未找到`)
+		throw new NotFound(`ID: ${id}的用户未找到`)
 	}
 
 	return user
@@ -141,16 +154,16 @@ async function getUser(req) {
 function filterBody(req) {
 	return {
 		username: req.body.username,
-		nickname: req.body.nickname || '用户',
+		nickname: req.body.nickname,
 		password: req.body.password,
 		phone: req.body.phone,
 		email: req.body.email,
-		gender: req.body.gender || 2,
-		avatar: req.body.avatar || 'user',
-		introduce: req.body.introduce || '这个人很懒，什么都没有留下',
-		role: req.body.role || 0,
-		level: req.body.level || 1,
-		creditScore: req.body.creditScore || 100,
+		gender: req.body.gender,
+		avatar: req.body.avatar,
+		introduce: req.body.introduce,
+		role: req.body.role,
+		level: req.body.level,
+		creditScore: req.body.creditScore,
 	}
 }
 

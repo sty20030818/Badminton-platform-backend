@@ -8,7 +8,7 @@ module.exports = {
 			[
 				{
 					title: '3月20日江体6-8',
-					description: '3月20日江体6-8 羽毛球活动，欢迎参加！',
+					description: '3月20日江体6-8 羽毛球活动,欢迎参加！',
 					cover: 'event1',
 					type: '羽毛球',
 					difficulty: 3,
@@ -27,7 +27,7 @@ module.exports = {
 				},
 				{
 					title: '3月20日滨体8-10',
-					description: '3月20日滨体8-10 羽毛球活动，适合初学者！',
+					description: '3月20日滨体8-10 羽毛球活动,适合初学者！',
 					cover: 'event2',
 					type: '羽毛球',
 					difficulty: 1,
@@ -46,7 +46,7 @@ module.exports = {
 				},
 				{
 					title: '3月21日星光体育馆下午场',
-					description: '3月21日星光体育馆下午场，高手切磋！',
+					description: '3月21日星光体育馆下午场,高手切磋！',
 					cover: 'event3',
 					type: '羽毛球',
 					difficulty: 5,

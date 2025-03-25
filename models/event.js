@@ -1,25 +1,10 @@
 'use strict'
 const { Model } = require('sequelize')
-
-// 辅助函数：转换为东八区时间
-function convertToUTC8(date) {
-	// 检查输入的日期是否为空，如果为空则返回null
-	if (!date) return null
-	// 将输入的日期字符串转换为Date对象
-	const d = new Date(date)
-	// 获取当前时区偏移（分钟），时区偏移是以分钟为单位的，正值表示西时区，负值表示东时区
-	const timezoneOffset = d.getTimezoneOffset()
-	// 转换为东八区时间（+8小时 = -480分钟的偏移）
-	return new Date(d.getTime() + (timezoneOffset + 480) * 60 * 1000)
-}
+const { BadRequest } = require('http-errors')
+const moment = require('moment')
 
 module.exports = (sequelize, DataTypes) => {
 	class Event extends Model {
-		/**
-		 * Helper method for defining associations.
-		 * This method is not a part of Sequelize lifecycle.
-		 * The `models/index` file will call this method automatically.
-		 */
 		static associate(models) {
 			//* 定义与 User 模型的关联关系
 			Event.belongsTo(models.User, {
@@ -39,6 +24,33 @@ module.exports = (sequelize, DataTypes) => {
 				as: 'comments',
 			})
 		}
+
+		// 在输出 JSON 时格式化时间
+		toJSON() {
+			const values = Object.assign({}, this.get())
+
+			// 格式化时间字段
+			if (values.startTime) {
+				values.startTime = moment(values.startTime).format('YYYY-MM-DD HH:mm:ss')
+			}
+			if (values.endTime) {
+				values.endTime = moment(values.endTime).format('YYYY-MM-DD HH:mm:ss')
+			}
+			if (values.regStart) {
+				values.regStart = moment(values.regStart).format('YYYY-MM-DD HH:mm:ss')
+			}
+			if (values.regEnd) {
+				values.regEnd = moment(values.regEnd).format('YYYY-MM-DD HH:mm:ss')
+			}
+			if (values.createdAt) {
+				values.createdAt = moment(values.createdAt).format('YYYY-MM-DD HH:mm:ss')
+			}
+			if (values.updatedAt) {
+				values.updatedAt = moment(values.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+			}
+
+			return values
+		}
 	}
 
 	Event.init(
@@ -47,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER.UNSIGNED,
 				primaryKey: true,
 				autoIncrement: true,
-				comment: '活动ID，主键',
+				comment: '活动ID,主键',
 			},
 			title: {
 				type: DataTypes.STRING,
@@ -64,11 +76,12 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '活动标题长度需要在2 ~ 15个字符之间',
 					},
 				},
-				comment: '活动标题，非空',
+				comment: '活动标题,非空',
 			},
 			description: {
 				type: DataTypes.TEXT,
 				allowNull: true,
+				defaultValue: '我是个活动描述',
 				validate: {
 					len: {
 						args: [0, 200],
@@ -80,6 +93,7 @@ module.exports = (sequelize, DataTypes) => {
 			cover: {
 				type: DataTypes.STRING,
 				allowNull: true,
+				defaultValue: 'eventDefault',
 				comment: '活动封面图片URL',
 			},
 			type: {
@@ -98,12 +112,12 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '请选择有效的活动类型',
 					},
 				},
-				comment: '活动类型（羽毛球,篮球,足球,乒乓球,网球,其他）',
+				comment: '活动类型(羽毛球,篮球,足球,乒乓球,网球,其他)',
 			},
 			difficulty: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
-				defaultValue: 0,
+				defaultValue: 1,
 				validate: {
 					notNull: {
 						msg: '活动难度必须存在',
@@ -120,11 +134,17 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '活动难度不能超过5',
 					},
 				},
-				comment: '活动难度等级，非空，范围0-5',
+				comment: '活动难度等级,非空,范围0-5',
 			},
 			startTime: {
 				type: DataTypes.DATE,
 				allowNull: false,
+				defaultValue: () => {
+					const tomorrow = new Date()
+					tomorrow.setDate(tomorrow.getDate() + 1)
+					tomorrow.setHours(20, 0, 0, 0)
+					return tomorrow
+				},
 				validate: {
 					notNull: {
 						msg: '活动开始时间必须存在',
@@ -137,11 +157,17 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '活动开始时间必须是将来的时间',
 					},
 				},
-				comment: '活动开始时间，非空',
+				comment: '活动开始时间,非空,默认为明天20点',
 			},
 			endTime: {
 				type: DataTypes.DATE,
 				allowNull: false,
+				defaultValue: () => {
+					const tomorrow = new Date()
+					tomorrow.setDate(tomorrow.getDate() + 1)
+					tomorrow.setHours(22, 0, 0, 0)
+					return tomorrow
+				},
 				validate: {
 					notNull: {
 						msg: '活动结束时间必须存在',
@@ -154,16 +180,22 @@ module.exports = (sequelize, DataTypes) => {
 							const endTime = new Date(value)
 							const startTime = new Date(this.startTime)
 							if (endTime <= startTime) {
-								throw new Error('活动结束时间必须晚于开始时间')
+								throw new BadRequest('活动结束时间必须晚于开始时间')
 							}
 						}
 					},
 				},
-				comment: '活动结束时间，非空',
+				comment: '活动结束时间,非空,默认为明天22点',
 			},
 			regStart: {
 				type: DataTypes.DATE,
 				allowNull: false,
+				defaultValue: () => {
+					const tomorrow = new Date()
+					tomorrow.setDate(tomorrow.getDate() + 1)
+					tomorrow.setHours(12, 0, 0, 0)
+					return tomorrow
+				},
 				validate: {
 					notNull: {
 						msg: '报名开始时间必须存在',
@@ -176,16 +208,22 @@ module.exports = (sequelize, DataTypes) => {
 							const startTime = new Date(value)
 							const endTime = new Date(this.regEnd)
 							if (startTime >= endTime) {
-								throw new Error('报名开始时间必须早于报名结束时间')
+								throw new BadRequest('报名开始时间必须早于报名结束时间')
 							}
 						}
 					},
 				},
-				comment: '报名开始时间，非空',
+				comment: '报名开始时间,非空,默认为明天12点',
 			},
 			regEnd: {
 				type: DataTypes.DATE,
 				allowNull: false,
+				defaultValue: () => {
+					const tomorrow = new Date()
+					tomorrow.setDate(tomorrow.getDate() + 1)
+					tomorrow.setHours(20, 0, 0, 0)
+					return tomorrow
+				},
 				validate: {
 					notNull: {
 						msg: '报名结束时间必须存在',
@@ -197,17 +235,18 @@ module.exports = (sequelize, DataTypes) => {
 						if (value && this.startTime) {
 							const endTime = new Date(value)
 							const startTime = new Date(this.startTime)
-							if (endTime >= startTime) {
-								throw new Error('报名结束时间必须早于活动开始时间')
+							if (endTime > startTime) {
+								throw new BadRequest('报名结束时间必须早于活动开始时间')
 							}
 						}
 					},
 				},
-				comment: '报名结束时间，非空',
+				comment: '报名结束时间,非空,默认为明天20点',
 			},
 			capacity: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
+				defaultValue: 6,
 				validate: {
 					notNull: {
 						msg: '活动容量必须存在',
@@ -224,7 +263,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '活动容量不能超过200人',
 					},
 				},
-				comment: '活动容量，非空',
+				comment: '活动容量,非空',
 			},
 			feeType: {
 				type: DataTypes.STRING,
@@ -247,6 +286,7 @@ module.exports = (sequelize, DataTypes) => {
 			feeAmount: {
 				type: DataTypes.DECIMAL(10, 2),
 				allowNull: true,
+				defaultValue: 0,
 				validate: {
 					isDecimal: {
 						msg: '费用金额必须是数字',
@@ -256,7 +296,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '费用金额不能小于0',
 					},
 				},
-				comment: '费用金额，当feeType为fixed时必填',
+				comment: '费用金额,当feeType为fixed时必填',
 			},
 			status: {
 				type: DataTypes.STRING,
@@ -288,7 +328,7 @@ module.exports = (sequelize, DataTypes) => {
 					model: 'Users',
 					key: 'id',
 				},
-				comment: '创建者ID，外键，关联users表',
+				comment: '创建者ID,外键,关联users表',
 			},
 			venueId: {
 				type: DataTypes.INTEGER,
@@ -302,7 +342,7 @@ module.exports = (sequelize, DataTypes) => {
 					model: 'Venues',
 					key: 'id',
 				},
-				comment: '场馆ID，外键，关联venues表',
+				comment: '场馆ID,外键,关联venues表',
 			},
 		},
 		{
@@ -310,68 +350,20 @@ module.exports = (sequelize, DataTypes) => {
 			modelName: 'Event',
 			tableName: 'events',
 			timestamps: true,
-			hooks: {
-				beforeCreate: (event) => {
-					if (event.startTime) {
-						event.startTime = convertToUTC8(event.startTime)
-					}
-					if (event.endTime) {
-						event.endTime = convertToUTC8(event.endTime)
-					}
-					if (event.regStart) {
-						event.regStart = convertToUTC8(event.regStart)
-					}
-					if (event.regEnd) {
-						event.regEnd = convertToUTC8(event.regEnd)
-					}
+			indexes: [
+				{
+					fields: ['venueId'],
+					name: 'events_venueId_index',
 				},
-				beforeUpdate: (event) => {
-					if (event.startTime) {
-						event.startTime = convertToUTC8(event.startTime)
-					}
-					if (event.endTime) {
-						event.endTime = convertToUTC8(event.endTime)
-					}
-					if (event.regStart) {
-						event.regStart = convertToUTC8(event.regStart)
-					}
-					if (event.regEnd) {
-						event.regEnd = convertToUTC8(event.regEnd)
-					}
+				{
+					fields: ['creatorId'],
+					name: 'events_creatorId_index',
 				},
-				afterFind: (events) => {
-					if (!events) return
-					if (Array.isArray(events)) {
-						events.forEach((event) => {
-							if (event.startTime) {
-								event.startTime = convertToUTC8(event.startTime)
-							}
-							if (event.endTime) {
-								event.endTime = convertToUTC8(event.endTime)
-							}
-							if (event.regStart) {
-								event.regStart = convertToUTC8(event.regStart)
-							}
-							if (event.regEnd) {
-								event.regEnd = convertToUTC8(event.regEnd)
-							}
-						})
-					} else {
-						if (events.startTime) {
-							events.startTime = convertToUTC8(events.startTime)
-						}
-						if (events.endTime) {
-							events.endTime = convertToUTC8(events.endTime)
-						}
-						if (events.regStart) {
-							events.regStart = convertToUTC8(events.regStart)
-						}
-						if (events.regEnd) {
-							events.regEnd = convertToUTC8(events.regEnd)
-						}
-					}
+				{
+					fields: ['status'],
+					name: 'events_status_index',
 				},
-			},
+			],
 		},
 	)
 

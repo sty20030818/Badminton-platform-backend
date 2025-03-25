@@ -7,27 +7,17 @@ const { success, failure } = require('../../utils/responses')
 
 /**
  ** 查询活动列表
- ** GET /admin/events
+ ** GET /events
  */
 router.get('/', async function (req, res) {
 	try {
-		//* 获取查询参数
 		const query = req.query
-
-		//* 获取分页所需要的两个参数,currentPage 和 pageSize
-		//* 如果没有传递这两个参数,就使用默认值
-		//* 默认是第1页
-		//* 默认每页显示 10 条数据
 		const currentPage = Math.abs(Number(query.currentPage)) || 1
 		const pageSize = Math.abs(Number(query.pageSize)) || 10
-
-		//* 计算offset
 		const offset = (currentPage - 1) * pageSize
 
-		//* 定义查询条件
 		const condition = {
 			order: [['id', 'DESC']],
-			//* 在查询条件中添加 limit 和 offset
 			limit: pageSize,
 			offset: offset,
 			include: [
@@ -44,7 +34,7 @@ router.get('/', async function (req, res) {
 			],
 			where: {},
 		}
-		//* 如果有 title 查询参数,就添加到 where 条件中
+
 		if (query.title) {
 			condition.where.title = {
 				[Op.like]: `%${query.title}%`,
@@ -64,10 +54,6 @@ router.get('/', async function (req, res) {
 		}
 
 		//* 查询数据
-		// const events = await Event.findAll(condition);
-		//* 将 findAll 方法改为 findAndCountAll 方法
-		//* findAndCountAll 方法会返回一个对象,对象中有两个属性,一个是 count,一个是 rows,
-		//* count 是查询到的数据的总数,rows 中才是查询到的数据
 		const { count, rows } = await Event.findAndCountAll(condition)
 
 		//* 返回查询结果
@@ -86,7 +72,7 @@ router.get('/', async function (req, res) {
 
 /**
  ** 查询活动详情
- ** GET /admin/events/:id
+ ** GET /events/:id
  */
 router.get('/:id', async function (req, res) {
 	try {
@@ -100,7 +86,7 @@ router.get('/:id', async function (req, res) {
 
 /**
  ** 创建活动
- ** POST /admin/events
+ ** POST /events
  */
 router.post('/', async function (req, res) {
 	try {
@@ -131,7 +117,7 @@ router.post('/', async function (req, res) {
 
 /**
  ** 更新活动
- ** PUT /admin/events/:id
+ ** PUT /events/:id
  */
 router.put('/:id', async function (req, res) {
 	try {
@@ -147,7 +133,7 @@ router.put('/:id', async function (req, res) {
 
 /**
  ** 删除活动
- ** DELETE /admin/events/:id
+ ** DELETE /events/:id
  */
 router.delete('/:id', async function (req, res) {
 	try {
@@ -172,7 +158,7 @@ async function getEvent(reqOrId) {
 			{
 				model: User,
 				as: 'creator',
-				attributes: ['id', 'username', 'nickname', 'email', 'avatar', 'introduce'],
+				attributes: ['id', 'nickname', 'email', 'avatar'],
 			},
 			{
 				model: Venue,

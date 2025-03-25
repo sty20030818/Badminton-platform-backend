@@ -1,20 +1,20 @@
 const express = require('express')
 const router = express.Router()
-const { User } = require('../models')
+const { User } = require('../../models')
 const { Op } = require('sequelize')
-const { NotFoundError } = require('../utils/errors')
-const { success, failure } = require('../utils/responses')
+const { NotFound } = require('http-errors')
+const { success, failure } = require('../../utils/responses')
 
 /**
  ** 查询当前用户详情
- ** GET /users
+ ** GET /user/me
  */
-router.get('/', async function (req, res) {
+router.get('/me', async function (req, res) {
 	try {
-		// 直接使用中间件传递的用户信息
+		//* 直接使用中间件传递的用户信息
 		const user = await User.findByPk(req.user.id)
 
-		// 移除密码字段
+		//* 不返回密码字段
 		const userWithoutPassword = user.toJSON()
 		delete userWithoutPassword.password
 
@@ -26,9 +26,9 @@ router.get('/', async function (req, res) {
 
 /**
  ** 更新当前用户
- ** PUT /users
+ ** PUT /user/me
  */
-router.put('/', async function (req, res) {
+router.put('/me', async function (req, res) {
 	try {
 		const user = await User.findByPk(req.user.id)
 		const body = filterBody(req)
@@ -40,7 +40,7 @@ router.put('/', async function (req, res) {
 
 		await user.update(body)
 
-		// 移除密码字段
+		//* 不返回密码字段
 		const userWithoutPassword = user.toJSON()
 		delete userWithoutPassword.password
 
@@ -52,9 +52,9 @@ router.put('/', async function (req, res) {
 
 /**
  ** 删除当前用户
- ** DELETE /users
+ ** DELETE /user/me
  */
-router.delete('/', async function (req, res) {
+router.delete('/me', async function (req, res) {
 	try {
 		const user = await User.findByPk(req.user.id)
 		await user.destroy()
@@ -75,7 +75,6 @@ router.delete('/', async function (req, res) {
  *   gender: number,
  *   avatar: string,
  *   introduce: string,
- *   role: number
  * }}
  */
 function filterBody(req) {
@@ -84,10 +83,9 @@ function filterBody(req) {
 		nickname: req.body.nickname,
 		password: req.body.password,
 		email: req.body.email,
-		gender: req.body.gender || 2,
+		gender: req.body.gender,
 		avatar: req.body.avatar,
 		introduce: req.body.introduce,
-		// role: req.body.role || 0,
 	}
 }
 

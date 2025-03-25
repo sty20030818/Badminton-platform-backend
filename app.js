@@ -2,24 +2,10 @@ const express = require('express')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const logger = require('morgan')
-const adminAuth = require('./middlewares/admin-auth')
-const auth = require('./middlewares/auth')
 const cors = require('cors')
 
 require('dotenv').config()
 
-//* 前台路由文件
-const indexRouter = require('./routes/index')
-const userRouter = require('./routes/user')
-const authRouter = require('./routes/auth')
-//* 后台路由文件
-const adminEventsRouter = require('./routes/admin/events')
-const adminVenuesRouter = require('./routes/admin/venues')
-const adminUsersRouter = require('./routes/admin/users')
-const adminGroupsRouter = require('./routes/admin/groups')
-// const adminPointsRouter = require('./routes/admin/points')
-// const adminRatingsRouter = require('./routes/admin/ratings')
-const adminAuthRouter = require('./routes/admin/auth')
 const app = express()
 
 app.use(logger('dev'))
@@ -52,17 +38,8 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 
-//* 前台路由配置
-app.use('/auth', authRouter)
-app.use('/', indexRouter)
-app.use('/user', auth, userRouter)
+//* 路由配置
+const routers = require('./config/routers')
+app.use('/', routers)
 
-//* 后台路由配置
-app.use('/admin/auth', adminAuthRouter)
-app.use('/admin/users', adminAuth, adminUsersRouter)
-app.use('/admin/events', adminAuth, adminEventsRouter)
-app.use('/admin/venues', adminAuth, adminVenuesRouter)
-app.use('/admin/groups', adminAuth, adminGroupsRouter)
-// app.use('/admin/points', adminAuth, adminPointsRouter)
-// app.use('/admin/ratings', adminAuth, adminRatingsRouter)
 module.exports = app

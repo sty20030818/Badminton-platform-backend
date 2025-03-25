@@ -1,5 +1,6 @@
 'use strict'
 const { Model } = require('sequelize')
+const moment = require('moment')
 
 module.exports = (sequelize, DataTypes) => {
 	class EventComment extends Model {
@@ -14,6 +15,21 @@ module.exports = (sequelize, DataTypes) => {
 				as: 'event',
 			})
 		}
+
+		//* 在输出 JSON 时格式化时间
+		toJSON() {
+			const values = Object.assign({}, this.get())
+
+			//* 格式化时间字段
+			if (values.createdAt) {
+				values.createdAt = moment(values.createdAt).format('YYYY-MM-DD HH:mm:ss')
+			}
+			if (values.updatedAt) {
+				values.updatedAt = moment(values.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+			}
+
+			return values
+		}
 	}
 
 	EventComment.init(
@@ -22,11 +38,12 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER,
 				primaryKey: true,
 				autoIncrement: true,
-				comment: '评论ID，主键',
+				comment: '评论ID,主键',
 			},
 			content: {
 				type: DataTypes.TEXT,
 				allowNull: false,
+				defaultValue: '我是个评论',
 				validate: {
 					notNull: {
 						msg: '评论内容必须存在',
@@ -39,10 +56,10 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '评论内容长度需要在1 ~ 500个字符之间',
 					},
 				},
-				comment: '评论内容，非空',
+				comment: '评论内容,非空',
 			},
 			userId: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				validate: {
 					notNull: {
@@ -50,13 +67,13 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 				references: {
-					model: 'Users',
+					model: 'users',
 					key: 'id',
 				},
-				comment: '用户ID，外键，关联users表',
+				comment: '用户ID,外键,关联users表',
 			},
 			eventId: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				validate: {
 					notNull: {
@@ -64,10 +81,10 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 				references: {
-					model: 'Events',
+					model: 'events',
 					key: 'id',
 				},
-				comment: '活动ID，外键，关联events表',
+				comment: '活动ID,外键,关联events表',
 			},
 		},
 		{

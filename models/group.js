@@ -1,5 +1,6 @@
 'use strict'
 const { Model } = require('sequelize')
+const moment = require('moment')
 
 module.exports = (sequelize, DataTypes) => {
 	class Group extends Model {
@@ -19,6 +20,21 @@ module.exports = (sequelize, DataTypes) => {
 				as: 'members',
 			})
 		}
+
+		//* 在输出 JSON 时格式化时间
+		toJSON() {
+			const values = Object.assign({}, this.get())
+
+			//* 格式化时间字段
+			if (values.createdAt) {
+				values.createdAt = moment(values.createdAt).format('YYYY-MM-DD HH:mm:ss')
+			}
+			if (values.updatedAt) {
+				values.updatedAt = moment(values.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+			}
+
+			return values
+		}
 	}
 
 	Group.init(
@@ -27,11 +43,12 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER,
 				primaryKey: true,
 				autoIncrement: true,
-				comment: '小组ID，主键',
+				comment: '小组ID,主键',
 			},
 			name: {
 				type: DataTypes.STRING,
 				allowNull: false,
+				defaultValue: '我是个小组',
 				validate: {
 					notNull: {
 						msg: '小组名称必须存在',
@@ -44,11 +61,12 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '小组名称长度需要在2 ~ 30个字符之间',
 					},
 				},
-				comment: '小组名称，非空',
+				comment: '小组名称,非空',
 			},
 			description: {
 				type: DataTypes.TEXT,
 				allowNull: true,
+				defaultValue: '我是个小组描述',
 				validate: {
 					len: {
 						args: [0, 200],
@@ -77,7 +95,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '小组容量不能超过12人',
 					},
 				},
-				comment: '小组容量，非空，默认6人',
+				comment: '小组容量,非空,默认6人',
 			},
 			status: {
 				type: DataTypes.STRING,
@@ -98,7 +116,7 @@ module.exports = (sequelize, DataTypes) => {
 				comment: '小组状态：公开、私密、关闭',
 			},
 			eventId: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				validate: {
 					notNull: {
@@ -106,13 +124,13 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 				references: {
-					model: 'Events',
+					model: 'events',
 					key: 'id',
 				},
-				comment: '活动ID，外键，关联events表',
+				comment: '活动ID,外键,关联events表',
 			},
 			creatorId: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.INTEGER.UNSIGNED,
 				allowNull: false,
 				validate: {
 					notNull: {
@@ -120,10 +138,10 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 				references: {
-					model: 'Users',
+					model: 'users',
 					key: 'id',
 				},
-				comment: '创建者ID，外键，关联users表',
+				comment: '创建者ID,外键,关联users表',
 			},
 		},
 		{

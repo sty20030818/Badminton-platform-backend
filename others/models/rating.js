@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER.UNSIGNED,
 				primaryKey: true,
 				autoIncrement: true,
-				comment: '评分ID，主键',
+				comment: '评分ID,主键',
 			},
 			userId: {
 				type: DataTypes.INTEGER.UNSIGNED,
@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '评分用户ID必须存在',
 					},
 				},
-				comment: '评分用户ID，外键，关联users表',
+				comment: '评分用户ID,外键,关联users表',
 			},
 			ratedUserId: {
 				type: DataTypes.INTEGER.UNSIGNED,
@@ -50,7 +50,7 @@ module.exports = (sequelize, DataTypes) => {
 						}
 					},
 				},
-				comment: '被评分用户ID，外键，关联users表',
+				comment: '被评分用户ID,外键,关联users表',
 			},
 			rating: {
 				type: DataTypes.INTEGER.UNSIGNED,
@@ -68,7 +68,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '评分不能大于5',
 					},
 				},
-				comment: '评分，非空、无符号',
+				comment: '评分,非空、无符号',
 			},
 		},
 		{

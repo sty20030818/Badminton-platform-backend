@@ -1,18 +1,37 @@
 'use strict'
 const { Model } = require('sequelize')
+const { BadRequest } = require('http-errors')
+const moment = require('moment')
+
 module.exports = (sequelize, DataTypes) => {
 	class Venue extends Model {
-		/**
-		 * Helper method for defining associations.
-		 * This method is not a part of Sequelize lifecycle.
-		 * The `models/index` file will call this method automatically.
-		 */
 		static associate(models) {
 			// 定义关联关系
 			Venue.hasMany(models.Event, {
 				foreignKey: 'venueId',
 				as: 'events',
 			})
+		}
+
+		//* 在输出 JSON 时格式化时间
+		toJSON() {
+			const values = Object.assign({}, this.get())
+
+			//* 格式化时间字段
+			if (values.openTime) {
+				values.openTime = moment(values.openTime, 'HH:mm:ss').format('HH:mm:ss')
+			}
+			if (values.closeTime) {
+				values.closeTime = moment(values.closeTime, 'HH:mm:ss').format('HH:mm:ss')
+			}
+			if (values.createdAt) {
+				values.createdAt = moment(values.createdAt).format('YYYY-MM-DD HH:mm:ss')
+			}
+			if (values.updatedAt) {
+				values.updatedAt = moment(values.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+			}
+
+			return values
 		}
 	}
 	Venue.init(
@@ -21,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER.UNSIGNED,
 				primaryKey: true,
 				autoIncrement: true,
-				comment: '场馆ID，主键',
+				comment: '场馆ID,主键',
 			},
 			name: {
 				type: DataTypes.STRING,
@@ -38,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '场馆名称长度需要在2 ~ 50个字符之间',
 					},
 				},
-				comment: '场馆名称，非空',
+				comment: '场馆名称,非空',
 			},
 			location: {
 				type: DataTypes.STRING,
@@ -55,11 +74,12 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '场馆位置长度需要在2 ~ 100个字符之间',
 					},
 				},
-				comment: '场馆位置，非空',
+				comment: '场馆位置,非空',
 			},
 			description: {
 				type: DataTypes.TEXT,
 				allowNull: true,
+				defaultValue: '我是一个场馆',
 				validate: {
 					len: {
 						args: [0, 500],
@@ -71,11 +91,13 @@ module.exports = (sequelize, DataTypes) => {
 			cover: {
 				type: DataTypes.STRING,
 				allowNull: true,
+				defaultValue: 'venueDefault',
 				comment: '场馆封面图片URL',
 			},
 			latitude: {
 				type: DataTypes.DECIMAL(10, 6),
 				allowNull: true,
+				defaultValue: 0,
 				validate: {
 					isDecimal: {
 						msg: '纬度必须是数字',
@@ -94,6 +116,7 @@ module.exports = (sequelize, DataTypes) => {
 			longitude: {
 				type: DataTypes.DECIMAL(10, 6),
 				allowNull: true,
+				defaultValue: 0,
 				validate: {
 					isDecimal: {
 						msg: '经度必须是数字',
@@ -116,11 +139,11 @@ module.exports = (sequelize, DataTypes) => {
 				validate: {
 					isTime: (value) => {
 						if (!/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(value)) {
-							throw new Error('请输入有效的开放时间，格式为HH:mm:ss')
+							throw new BadRequest('请输入有效的开放时间,格式为HH:mm:ss')
 						}
 					},
 				},
-				comment: '场馆开放时间，格式HH:mm:ss',
+				comment: '场馆开放时间,格式HH:mm:ss',
 			},
 			closeTime: {
 				type: DataTypes.TIME,
@@ -129,7 +152,7 @@ module.exports = (sequelize, DataTypes) => {
 				validate: {
 					isTime: (value) => {
 						if (!/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(value)) {
-							throw new Error('请输入有效的关闭时间，格式为HH:mm:ss')
+							throw new BadRequest('请输入有效的关闭时间,格式为HH:mm:ss')
 						}
 					},
 					isAfterOpenTime(value) {
@@ -139,16 +162,17 @@ module.exports = (sequelize, DataTypes) => {
 							const closeSeconds = close[0] * 3600 + close[1] * 60 + close[2]
 							const openSeconds = open[0] * 3600 + open[1] * 60 + open[2]
 							if (closeSeconds <= openSeconds) {
-								throw new Error('关闭时间必须晚于开放时间')
+								throw new BadRequest('关闭时间必须晚于开放时间')
 							}
 						}
 					},
 				},
-				comment: '场馆关闭时间，格式HH:mm:ss',
+				comment: '场馆关闭时间,格式HH:mm:ss',
 			},
 			status: {
 				type: DataTypes.STRING,
 				allowNull: false,
+				defaultValue: '可用',
 				validate: {
 					notNull: {
 						msg: '场馆状态必须存在',
@@ -158,7 +182,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '场馆状态必须是：可用、维护中、已关闭之一',
 					},
 				},
-				comment: '场馆状态，非空',
+				comment: '场馆状态,非空',
 			},
 		},
 		{

@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER.UNSIGNED,
 				primaryKey: true,
 				autoIncrement: true,
-				comment: '积分ID，主键',
+				comment: '积分ID,主键',
 			},
 			userId: {
 				type: DataTypes.INTEGER.UNSIGNED,
@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '用户ID必须存在',
 					},
 				},
-				comment: '用户ID，外键，关联users表',
+				comment: '用户ID,外键,关联users表',
 			},
 			points: {
 				type: DataTypes.INTEGER.UNSIGNED,
@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '积分不能为负数',
 					},
 				},
-				comment: '积分，非空、无符号',
+				comment: '积分,非空、无符号',
 			},
 			acquiredAt: {
 				type: DataTypes.DATE,
@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '请输入有效的日期时间',
 					},
 				},
-				comment: '获得积分时间，非空',
+				comment: '获得积分时间,非空',
 			},
 		},
 		{

@@ -8,12 +8,12 @@ module.exports = {
 				autoIncrement: true,
 				primaryKey: true,
 				type: Sequelize.INTEGER.UNSIGNED,
-				comment: '评分ID，主键',
+				comment: '评分ID,主键',
 			},
 			userId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '评分用户ID，外键，关联users表',
+				comment: '评分用户ID,外键,关联users表',
 				references: {
 					model: 'Users',
 					key: 'id',
@@ -24,7 +24,7 @@ module.exports = {
 			ratedUserId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '被评分用户ID，外键，关联users表',
+				comment: '被评分用户ID,外键,关联users表',
 				references: {
 					model: 'Users',
 					key: 'id',
@@ -35,7 +35,7 @@ module.exports = {
 			rating: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '评分，非空、无符号',
+				comment: '评分,非空、无符号',
 			},
 			createdAt: {
 				allowNull: false,

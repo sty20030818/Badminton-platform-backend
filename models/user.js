@@ -1,6 +1,8 @@
 'use strict'
 const { Model } = require('sequelize')
+const { Conflict, BadRequest } = require('http-errors')
 const bcrypt = require('bcryptjs')
+const moment = require('moment')
 
 module.exports = (sequelize, DataTypes) => {
 	class User extends Model {
@@ -22,6 +24,21 @@ module.exports = (sequelize, DataTypes) => {
 				as: 'groups',
 			})
 		}
+
+		// 在输出 JSON 时格式化时间
+		toJSON() {
+			const values = Object.assign({}, this.get())
+
+			// 格式化时间字段
+			if (values.createdAt) {
+				values.createdAt = moment(values.createdAt).format('YYYY-MM-DD HH:mm:ss')
+			}
+			if (values.updatedAt) {
+				values.updatedAt = moment(values.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+			}
+
+			return values
+		}
 	}
 	User.init(
 		{
@@ -29,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER.UNSIGNED,
 				primaryKey: true,
 				autoIncrement: true,
-				comment: '用户ID，主键',
+				comment: '用户ID,主键',
 			},
 			username: {
 				type: DataTypes.STRING,
@@ -49,14 +66,16 @@ module.exports = (sequelize, DataTypes) => {
 					async isUnique(value) {
 						const user = await User.findOne({ where: { username: value } })
 						if (user) {
-							throw new Error('用户名已经存在')
+							throw new Conflict('用户名已经存在')
 						}
 					},
 				},
-				comment: '用户名，唯一且非空',
+				comment: '用户名,唯一且非空',
 			},
 			nickname: {
 				type: DataTypes.STRING,
+				allowNull: true,
+				defaultValue: '默认用户',
 				validate: {
 					len: {
 						args: [0, 20],
@@ -68,31 +87,19 @@ module.exports = (sequelize, DataTypes) => {
 			password: {
 				type: DataTypes.STRING,
 				allowNull: false,
-				validate: {
-					notNull: {
-						msg: '密码必须填写',
-					},
-					notEmpty: {
-						msg: '密码不能为空',
-					},
-					len: {
-						args: [6, 20],
-						msg: '密码长度必须是6 ~ 20之间',
-					},
-				},
 				set(value) {
 					if (!value) {
-						throw new Error('密码必须填写')
+						throw new BadRequest('密码必须填写')
 					}
 
 					if (value.length < 6 || value.length > 20) {
-						throw new Error('密码长度必须是6 ~ 20之间')
+						throw new BadRequest('密码长度必须是6 ~ 20之间')
 					}
 
-					// 如果通过所有验证，进行hash处理并设置值
+					// 如果通过所有验证,进行hash处理并设置值
 					this.setDataValue('password', bcrypt.hashSync(value, 10))
 				},
-				comment: '密码，非空',
+				comment: '密码,非空',
 			},
 			phone: {
 				type: DataTypes.STRING(11),
@@ -107,7 +114,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '手机号必须是11位数字',
 					},
 				},
-				comment: '手机号，11位数字',
+				comment: '手机号,11位数字',
 			},
 			email: {
 				type: DataTypes.STRING,
@@ -123,11 +130,11 @@ module.exports = (sequelize, DataTypes) => {
 					async isUnique(value) {
 						const user = await User.findOne({ where: { email: value } })
 						if (user) {
-							throw new Error('邮箱已经存在')
+							throw new Conflict('邮箱已经存在')
 						}
 					},
 				},
-				comment: '邮箱，唯一且非空',
+				comment: '邮箱,唯一且非空',
 			},
 			gender: {
 				type: DataTypes.TINYINT.UNSIGNED,
@@ -136,13 +143,15 @@ module.exports = (sequelize, DataTypes) => {
 				validate: {
 					isIn: {
 						args: [[0, 1, 2]],
-						msg: '性别只能是0（女）、1（男）或2（保密）',
+						msg: '性别只能是0(女)、1(男)或2(保密)',
 					},
 				},
-				comment: '性别，非空且无符号，默认值为2',
+				comment: '性别,非空且无符号,默认值为2',
 			},
 			avatar: {
 				type: DataTypes.STRING,
+				allowNull: true,
+				defaultValue: 'userDefault',
 				// validate: {
 				// 	isUrl: {
 				// 		msg: '头像必须是有效的URL地址',
@@ -152,6 +161,8 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			introduce: {
 				type: DataTypes.TEXT,
+				allowNull: true,
+				defaultValue: '这个人很懒,什么都没有留下',
 				validate: {
 					len: {
 						args: [0, 500],
@@ -167,10 +178,10 @@ module.exports = (sequelize, DataTypes) => {
 				validate: {
 					isIn: {
 						args: [[0, 100]],
-						msg: '角色只能是0（普通用户）或100（管理员）',
+						msg: '角色只能是0(普通用户)或100(管理员)',
 					},
 				},
-				comment: '用户角色，0普通用户，100管理员',
+				comment: '用户角色,0普通用户,100管理员',
 			},
 			level: {
 				type: DataTypes.INTEGER,
@@ -189,7 +200,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '等级不能大于5',
 					},
 				},
-				comment: '用户等级，1-5级',
+				comment: '用户等级,1-5级',
 			},
 			creditScore: {
 				type: DataTypes.INTEGER,
@@ -208,7 +219,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '信用评分不能大于100',
 					},
 				},
-				comment: '信用评分，0-100分',
+				comment: '信用评分,0-100分',
 			},
 		},
 		{

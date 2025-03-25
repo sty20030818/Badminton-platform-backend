@@ -8,12 +8,12 @@ module.exports = {
 				autoIncrement: true,
 				primaryKey: true,
 				type: Sequelize.INTEGER.UNSIGNED,
-				comment: '积分ID，主键',
+				comment: '积分ID,主键',
 			},
 			userId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '用户ID，外键，关联users表',
+				comment: '用户ID,外键,关联users表',
 				references: {
 					model: 'Users',
 					key: 'id',
@@ -24,12 +24,12 @@ module.exports = {
 			points: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '积分，非空、无符号',
+				comment: '积分,非空、无符号',
 			},
 			acquiredAt: {
 				type: Sequelize.DATE,
 				allowNull: false,
-				comment: '获得积分时间，非空',
+				comment: '获得积分时间,非空',
 			},
 			createdAt: {
 				allowNull: false,

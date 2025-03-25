@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { Point, User } = require('../../models')
 const { Op } = require('sequelize')
-const { NotFoundError } = require('../../utils/errors')
+const { NotFound } = require('http-errors')
 const { success, failure } = require('../../utils/responses')
 
 /**
@@ -151,7 +151,7 @@ async function getPoint(req) {
 	})
 
 	if (!point) {
-		throw new NotFoundError(`ID: ${id}的积分记录未找到`)
+		throw new NotFound(`ID: ${id}的积分记录未找到`)
 	}
 
 	return point

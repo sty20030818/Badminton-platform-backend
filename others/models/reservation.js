@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER.UNSIGNED,
 				primaryKey: true,
 				autoIncrement: true,
-				comment: '预约ID，主键',
+				comment: '预约ID,主键',
 			},
 			userId: {
 				type: DataTypes.INTEGER.UNSIGNED,
@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '用户ID必须存在',
 					},
 				},
-				comment: '用户ID，外键，关联users表',
+				comment: '用户ID,外键,关联users表',
 			},
 			venueId: {
 				type: DataTypes.INTEGER.UNSIGNED,
@@ -45,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '场地ID必须存在',
 					},
 				},
-				comment: '场地ID，外键，关联venues表',
+				comment: '场地ID,外键,关联venues表',
 			},
 			timeslot: {
 				type: DataTypes.DATE,
@@ -62,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '预约时间必须是将来的时间',
 					},
 				},
-				comment: '预约时间段，非空',
+				comment: '预约时间段,非空',
 			},
 			status: {
 				type: DataTypes.STRING,
@@ -76,7 +76,7 @@ module.exports = (sequelize, DataTypes) => {
 						msg: '预约状态必须是：待确认、已确认、已取消、已完成之一',
 					},
 				},
-				comment: '预约状态，非空',
+				comment: '预约状态,非空',
 			},
 		},
 		{

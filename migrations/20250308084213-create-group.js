@@ -9,34 +9,36 @@ module.exports = {
 				autoIncrement: true,
 				primaryKey: true,
 				type: Sequelize.INTEGER.UNSIGNED,
-				comment: '小组ID，主键',
+				comment: '小组ID,主键',
 			},
 			name: {
 				type: Sequelize.STRING,
 				allowNull: false,
-				comment: '小组名称，非空',
+				defaultValue: '我是个小组',
+				comment: '小组名称,非空',
 			},
 			description: {
 				type: Sequelize.TEXT,
 				allowNull: true,
+				defaultValue: '我是个小组描述',
 				comment: '小组描述',
 			},
 			capacity: {
 				type: Sequelize.INTEGER,
 				allowNull: false,
 				defaultValue: 6,
-				comment: '小组容量，非空，默认6人',
+				comment: '小组容量,非空,默认6人',
 			},
 			status: {
 				type: Sequelize.STRING,
 				allowNull: false,
 				defaultValue: '公开',
-				comment: '小组状态：公开、私密、需要申请、关闭',
+				comment: '小组状态：公开、私密、关闭',
 			},
 			eventId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '活动ID，外键，关联events表',
+				comment: '活动ID,外键,关联events表',
 				references: {
 					model: 'Events',
 					key: 'id',
@@ -47,7 +49,7 @@ module.exports = {
 			creatorId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '创建者ID，外键，关联users表',
+				comment: '创建者ID,外键,关联users表',
 				references: {
 					model: 'Users',
 					key: 'id',

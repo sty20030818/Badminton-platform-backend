@@ -8,12 +8,12 @@ module.exports = {
 				autoIncrement: true,
 				primaryKey: true,
 				type: Sequelize.INTEGER.UNSIGNED,
-				comment: '预约ID，主键',
+				comment: '预约ID,主键',
 			},
 			userId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '用户ID，外键，关联users表',
+				comment: '用户ID,外键,关联users表',
 				references: {
 					model: 'Users',
 					key: 'id',
@@ -24,7 +24,7 @@ module.exports = {
 			venueId: {
 				type: Sequelize.INTEGER.UNSIGNED,
 				allowNull: false,
-				comment: '场地ID，外键，关联venues表',
+				comment: '场地ID,外键,关联venues表',
 				references: {
 					model: 'Venues',
 					key: 'id',
@@ -35,12 +35,12 @@ module.exports = {
 			timeslot: {
 				type: Sequelize.DATE,
 				allowNull: false,
-				comment: '预约时间段，非空',
+				comment: '预约时间段,非空',
 			},
 			status: {
 				type: Sequelize.STRING,
 				allowNull: false,
-				comment: '预约状态，非空',
+				comment: '预约状态,非空',
 			},
 			createdAt: {
 				allowNull: false,

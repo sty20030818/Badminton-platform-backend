@@ -9,12 +9,13 @@ module.exports = {
 				autoIncrement: true,
 				primaryKey: true,
 				type: Sequelize.INTEGER.UNSIGNED,
-				comment: '评论ID，主键',
+				comment: '评论ID,主键',
 			},
 			content: {
 				type: Sequelize.TEXT,
 				allowNull: false,
-				comment: '评论内容，非空',
+				defaultValue: '我是个评论',
+				comment: '评论内容,非空',
 			},
 			userId: {
 				type: Sequelize.INTEGER.UNSIGNED,
@@ -25,7 +26,7 @@ module.exports = {
 				},
 				onUpdate: 'CASCADE',
 				onDelete: 'CASCADE',
-				comment: '用户ID，外键，关联users表',
+				comment: '用户ID,外键,关联users表',
 			},
 			eventId: {
 				type: Sequelize.INTEGER.UNSIGNED,
@@ -36,7 +37,7 @@ module.exports = {
 				},
 				onUpdate: 'CASCADE',
 				onDelete: 'CASCADE',
-				comment: '活动ID，外键，关联events表',
+				comment: '活动ID,外键,关联events表',
 			},
 			createdAt: {
 				allowNull: false,
