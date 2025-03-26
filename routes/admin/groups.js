@@ -11,7 +11,7 @@ const { success, failure } = require('../../utils/responses')
  */
 router.get('/', async function (req, res) {
 	try {
-		const query = req.query
+		const { query } = req
 		const currentPage = Math.abs(Number(query.currentPage)) || 1
 		const pageSize = Math.abs(Number(query.pageSize)) || 10
 		const offset = (currentPage - 1) * pageSize
@@ -25,6 +25,15 @@ router.get('/', async function (req, res) {
 					model: User,
 					as: 'creator',
 					attributes: ['id', 'username', 'email'],
+				},
+				{
+					model: User,
+					as: 'members',
+					attributes: ['id', 'nickname', 'avatar'],
+					through: {
+						model: GroupMember,
+						attributes: [],
+					},
 				},
 			],
 		}
@@ -73,7 +82,7 @@ router.post('/', async function (req, res) {
 	try {
 		const body = {
 			...filterBody(req),
-			creatorId: req.user.id, // 使用当前登录用户的ID
+			creatorId: req.user.id, //* 使用当前登录用户的ID
 		}
 		const group = await Group.create(body)
 		success(res, '创建小组成功', { group }, 201)
@@ -134,7 +143,7 @@ router.get('/:id/members', async function (req, res) {
 			offset: parseInt(offset),
 		})
 
-		// 重新格式化返回数据
+		//* 重新格式化返回数据
 		const formattedMembers = members.rows.map((member) => ({
 			userId: member.User.id,
 			username: member.User.username,
@@ -163,19 +172,19 @@ router.post('/:id/members', async function (req, res) {
 		const { id: groupId } = req.params
 		const { userId } = req.body
 
-		// 检查小组是否存在
+		//* 检查小组是否存在
 		const group = await Group.findByPk(groupId)
 		if (!group) {
 			throw new NotFound('小组不存在')
 		}
 
-		// 检查用户是否存在
+		//* 检查用户是否存在
 		const user = await User.findByPk(userId)
 		if (!user) {
 			throw new NotFound('用户不存在')
 		}
 
-		// 检查用户是否已经是小组成员
+		//* 检查用户是否已经是小组成员
 		const existingMember = await GroupMember.findOne({
 			where: { groupId, userId },
 		})
@@ -183,7 +192,7 @@ router.post('/:id/members', async function (req, res) {
 			throw Conflict('该用户已经是小组成员')
 		}
 
-		// 创建小组成员关系
+		//* 创建小组成员关系
 		await GroupMember.create({ groupId, userId })
 
 		success(res, '添加小组成员成功', null, 201)

@@ -17,7 +17,11 @@ module.exports = (sequelize, DataTypes) => {
 				foreignKey: 'venueId',
 				as: 'venue',
 			})
-
+			//* 定义与 Group 模型的关联关系
+			Event.hasMany(models.Group, {
+				foreignKey: 'eventId',
+				as: 'groups',
+			})
 			//* 定义与 EventComment 模型的关联关系
 			Event.hasMany(models.EventComment, {
 				foreignKey: 'eventId',

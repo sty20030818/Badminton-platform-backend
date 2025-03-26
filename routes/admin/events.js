@@ -12,7 +12,7 @@ const { success, failure } = require('../../utils/responses')
 router.get('/', async function (req, res) {
 	try {
 		//* 获取查询参数
-		const query = req.query
+		const { query } = req
 
 		//* 获取分页所需要的两个参数,currentPage 和 pageSize
 		//* 如果没有传递这两个参数,就使用默认值
@@ -34,12 +34,32 @@ router.get('/', async function (req, res) {
 				{
 					model: User,
 					as: 'creator',
-					attributes: ['id', 'username', 'nickname', 'phone', 'email', 'avatar', 'introduce'],
+					// attributes: ['id', 'username', 'nickname', 'phone', 'email', 'avatar', 'introduce'],
 				},
 				{
 					model: Venue,
 					as: 'venue',
-					attributes: ['id', 'name', 'location', 'description', 'status'],
+					// attributes: ['id', 'name', 'location', 'description', 'status'],
+				},
+				{
+					model: Group,
+					as: 'groups',
+					// attributes: ['id', 'name', 'capacity', 'status'],
+					include: [
+						{
+							model: User,
+							as: 'creator',
+							// attributes: ['id', 'nickname', 'avatar'],
+						},
+						{
+							model: User,
+							as: 'members',
+							// attributes: ['id', 'nickname', 'avatar'],
+							through: {
+								attributes: [],
+							},
+						},
+					],
 				},
 			],
 			where: {},
@@ -172,12 +192,32 @@ async function getEvent(reqOrId) {
 			{
 				model: User,
 				as: 'creator',
-				attributes: ['id', 'username', 'nickname', 'email', 'avatar', 'introduce'],
+				// attributes: ['id', 'username', 'nickname', 'phone', 'email', 'avatar', 'introduce'],
 			},
 			{
 				model: Venue,
 				as: 'venue',
-				attributes: ['id', 'name', 'location', 'description', 'status'],
+				// attributes: ['id', 'name', 'location', 'description', 'status'],
+			},
+			{
+				model: Group,
+				as: 'groups',
+				// attributes: ['id', 'name', 'capacity', 'status'],
+				include: [
+					{
+						model: User,
+						as: 'creator',
+						// attributes: ['id', 'nickname', 'avatar'],
+					},
+					{
+						model: User,
+						as: 'members',
+						// attributes: ['id', 'nickname', 'avatar'],
+						through: {
+							attributes: [],
+						},
+					},
+				],
 			},
 		],
 	})

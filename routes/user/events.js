@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const { Event, Venue, User, Group } = require('../../models')
+const { Event, Venue, User, Group, GroupMember } = require('../../models')
 const { Op } = require('sequelize')
 const { NotFound } = require('http-errors')
 const { success, failure } = require('../../utils/responses')
+const models = require('../../models')
 
 /**
  ** 查询活动列表
@@ -20,16 +21,38 @@ router.get('/', async function (req, res) {
 			order: [['id', 'DESC']],
 			limit: pageSize,
 			offset: offset,
+			attributes: { exclude: ['creatorId', 'venueId', 'createdAt', 'updatedAt'] },
 			include: [
 				{
 					model: User,
 					as: 'creator',
-					attributes: ['id', 'username', 'nickname', 'phone', 'email', 'avatar', 'introduce'],
+					attributes: ['id', 'nickname', 'avatar', 'introduce'],
 				},
 				{
 					model: Venue,
 					as: 'venue',
-					attributes: ['id', 'name', 'location', 'description', 'status'],
+					attributes: ['id', 'name', 'location', 'description'],
+				},
+				{
+					model: Group,
+					as: 'groups',
+					attributes: ['id', 'name', 'description', 'capacity'],
+					include: [
+						{
+							model: User,
+							as: 'creator',
+							attributes: ['id', 'nickname', 'avatar'],
+						},
+						{
+							model: User,
+							as: 'members',
+							attributes: ['id', 'nickname', 'avatar'],
+							through: {
+								models: GroupMember,
+								attributes: [],
+							},
+						},
+					],
 				},
 			],
 			where: {},
@@ -154,16 +177,38 @@ async function getEvent(reqOrId) {
 	const id = typeof reqOrId === 'object' ? reqOrId.params.id : reqOrId
 	//* 查询当前活动
 	const event = await Event.findByPk(id, {
+		attributes: { exclude: ['creatorId', 'venueId', 'createdAt', 'updatedAt'] },
 		include: [
 			{
 				model: User,
 				as: 'creator',
-				attributes: ['id', 'nickname', 'email', 'avatar'],
+				attributes: ['id', 'nickname', 'avatar', 'introduce'],
 			},
 			{
 				model: Venue,
 				as: 'venue',
-				attributes: ['id', 'name', 'location', 'description', 'status'],
+				attributes: ['id', 'name', 'location', 'description'],
+			},
+			{
+				model: Group,
+				as: 'groups',
+				attributes: ['id', 'name', 'description', 'capacity'],
+				include: [
+					{
+						model: User,
+						as: 'creator',
+						attributes: ['id', 'nickname', 'avatar'],
+					},
+					{
+						model: User,
+						as: 'members',
+						attributes: ['id', 'nickname', 'avatar'],
+						through: {
+							models: GroupMember,
+							attributes: [],
+						},
+					},
+				],
 			},
 		],
 	})
