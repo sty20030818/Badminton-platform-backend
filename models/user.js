@@ -205,7 +205,7 @@ module.exports = (sequelize, DataTypes) => {
 			creditScore: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
-				defaultValue: 100,
+				defaultValue: 80,
 				validate: {
 					isInt: {
 						msg: '信用评分必须是整数',

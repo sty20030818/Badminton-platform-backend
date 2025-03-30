@@ -10,9 +10,9 @@ const jwt = require('jsonwebtoken')
 
 /**
  ** 管理员登录
- ** POST /admin/auth/sign_in
+ ** POST /admin/auth/login
  */
-router.post('/sign_in', async (req, res) => {
+router.post('/login', async (req, res) => {
 	try {
 		// console.log(crypto.randomBytes(32).toString('hex'))
 		const { login, password } = req.body

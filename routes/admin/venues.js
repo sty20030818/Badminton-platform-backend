@@ -12,7 +12,7 @@ const { success, failure } = require('../../utils/responses')
 router.get('/', async function (req, res) {
 	try {
 		//* 获取查询参数
-		const query = req.query
+		const { query } = req
 
 		//* 获取分页所需要的两个参数,currentPage 和 pageSize
 		//* 如果没有传递这两个参数,就使用默认值

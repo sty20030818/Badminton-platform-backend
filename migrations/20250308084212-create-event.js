@@ -41,25 +41,21 @@ module.exports = {
 			startTime: {
 				type: Sequelize.DATE,
 				allowNull: false,
-				defaultValue: Sequelize.literal('CURRENT_TIMESTAMP + INTERVAL 1 DAY + INTERVAL 20 HOUR'),
 				comment: '活动开始时间,非空,默认为明天20点',
 			},
 			endTime: {
 				type: Sequelize.DATE,
 				allowNull: false,
-				defaultValue: Sequelize.literal('CURRENT_TIMESTAMP + INTERVAL 1 DAY + INTERVAL 22 HOUR'),
 				comment: '活动结束时间,非空,默认为明天22点',
 			},
 			regStart: {
 				type: Sequelize.DATE,
 				allowNull: false,
-				defaultValue: Sequelize.literal('CURRENT_TIMESTAMP + INTERVAL 1 DAY + INTERVAL 12 HOUR'),
 				comment: '报名开始时间,非空,默认为明天12点',
 			},
 			regEnd: {
 				type: Sequelize.DATE,
 				allowNull: false,
-				defaultValue: Sequelize.literal('CURRENT_TIMESTAMP + INTERVAL 1 DAY + INTERVAL 20 HOUR'),
 				comment: '报名结束时间,非空,默认为明天20点',
 			},
 			capacity: {

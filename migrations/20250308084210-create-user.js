@@ -71,7 +71,7 @@ module.exports = {
 			creditScore: {
 				type: Sequelize.INTEGER,
 				allowNull: false,
-				defaultValue: 100,
+				defaultValue: 80,
 				comment: '信用评分,0-100分',
 			},
 			createdAt: {

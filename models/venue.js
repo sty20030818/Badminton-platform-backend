@@ -88,6 +88,21 @@ module.exports = (sequelize, DataTypes) => {
 				},
 				comment: '场馆描述',
 			},
+			status: {
+				type: DataTypes.STRING,
+				allowNull: false,
+				defaultValue: '可用',
+				validate: {
+					notNull: {
+						msg: '场馆状态必须存在',
+					},
+					isIn: {
+						args: [['可用', '维护中', '已关闭']],
+						msg: '场馆状态必须是：可用、维护中、已关闭之一',
+					},
+				},
+				comment: '场馆状态,非空',
+			},
 			cover: {
 				type: DataTypes.STRING,
 				allowNull: true,
@@ -168,21 +183,6 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 				comment: '场馆关闭时间,格式HH:mm:ss',
-			},
-			status: {
-				type: DataTypes.STRING,
-				allowNull: false,
-				defaultValue: '可用',
-				validate: {
-					notNull: {
-						msg: '场馆状态必须存在',
-					},
-					isIn: {
-						args: [['可用', '维护中', '已关闭']],
-						msg: '场馆状态必须是：可用、维护中、已关闭之一',
-					},
-				},
-				comment: '场馆状态,非空',
 			},
 		},
 		{

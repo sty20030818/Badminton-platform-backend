@@ -2,7 +2,7 @@
 
 const Sequelize = require('sequelize')
 const env = process.env.NODE_ENV || 'development'
-const config = require('../config/config.json')[env]
+const config = require('../config/config')[env]
 
 // 创建 Sequelize 实例
 const sequelize = config.use_env_variable

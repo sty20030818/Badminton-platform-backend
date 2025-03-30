@@ -12,7 +12,7 @@ const models = require('../../models')
  */
 router.get('/', async function (req, res) {
 	try {
-		const query = req.query
+		const { query } = req
 		const currentPage = Math.abs(Number(query.currentPage)) || 1
 		const pageSize = Math.abs(Number(query.pageSize)) || 10
 		const offset = (currentPage - 1) * pageSize
