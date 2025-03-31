@@ -1,14 +1,15 @@
-const express = require('express')
+import express from 'express'
+import models from '../../models/index.js'
+const { User } = models
+import { success, failure } from '../../utils/responses.js'
+
 const router = express.Router()
-const { User } = require('../../models')
-const { Op } = require('sequelize')
-const { NotFound } = require('http-errors')
-const { success, failure } = require('../../utils/responses')
 
 /**
  ** 查询当前用户详情
  ** GET /user/me
  */
+// #region 查询当前用户详情
 router.get('/me', async function (req, res) {
 	try {
 		//* 直接使用中间件传递的用户信息
@@ -18,16 +19,18 @@ router.get('/me', async function (req, res) {
 		const userWithoutPassword = user.toJSON()
 		delete userWithoutPassword.password
 
-		success(res, '查询用户成功', { user: user })
+		success(res, '查询用户成功', { user: userWithoutPassword })
 	} catch (error) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 更新当前用户
  ** PUT /user/me
  */
+// #region 更新当前用户
 router.put('/me', async function (req, res) {
 	try {
 		const user = await User.findByPk(req.user.id)
@@ -49,11 +52,13 @@ router.put('/me', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 删除当前用户
  ** DELETE /user/me
  */
+// #region 删除当前用户
 router.delete('/me', async function (req, res) {
 	try {
 		const user = await User.findByPk(req.user.id)
@@ -63,6 +68,7 @@ router.delete('/me', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 公共方法：白名单过滤
@@ -89,4 +95,4 @@ function filterBody(req) {
 	}
 }
 
-module.exports = router
+export default router

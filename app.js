@@ -1,10 +1,16 @@
-const express = require('express')
-const path = require('path')
-const cookieParser = require('cookie-parser')
-const logger = require('morgan')
-const cors = require('cors')
+import express from 'express'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import cookieParser from 'cookie-parser'
+import logger from 'morgan'
+import cors from 'cors'
+import dotenv from 'dotenv'
+import routers from './config/routers.js'
 
-require('dotenv').config()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+dotenv.config()
 
 const app = express()
 
@@ -39,7 +45,6 @@ const corsOptions = {
 app.use(cors(corsOptions))
 
 //* 路由配置
-const routers = require('./config/routers')
 app.use('/', routers)
 
-module.exports = app
+export default app

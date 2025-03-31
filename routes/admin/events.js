@@ -1,14 +1,18 @@
-const express = require('express')
+import express from 'express'
+import models from '../../models/index.js'
+const { Event, Venue, User, Group } = models
+import { Op } from 'sequelize'
+import pkg from 'http-errors'
+const { NotFound } = pkg
+import { success, failure } from '../../utils/responses.js'
+
 const router = express.Router()
-const { Event, Venue, User, Group } = require('../../models')
-const { Op } = require('sequelize')
-const { NotFound } = require('http-errors')
-const { success, failure } = require('../../utils/responses')
 
 /**
  ** 查询活动列表
  ** GET /admin/events
  */
+// #region 查询活动列表
 router.get('/', async function (req, res) {
 	try {
 		//* 获取查询参数
@@ -108,6 +112,7 @@ router.get('/', async function (req, res) {
  ** 查询活动详情
  ** GET /admin/events/:id
  */
+// #region 查询活动详情
 router.get('/:id', async function (req, res) {
 	try {
 		const event = await getEvent(req)
@@ -117,11 +122,13 @@ router.get('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 创建活动
  ** POST /admin/events
  */
+// #region 创建活动
 router.post('/', async function (req, res) {
 	try {
 		const body = {
@@ -148,11 +155,13 @@ router.post('/', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 更新活动
  ** PUT /admin/events/:id
  */
+// #region 更新活动
 router.put('/:id', async function (req, res) {
 	try {
 		const event = await getEvent(req)
@@ -164,11 +173,13 @@ router.put('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 删除活动
  ** DELETE /admin/events/:id
  */
+// #region 删除活动
 router.delete('/:id', async function (req, res) {
 	try {
 		const event = await getEvent(req)
@@ -179,6 +190,7 @@ router.delete('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 公共方法：查询当前活动
@@ -232,24 +244,24 @@ async function getEvent(reqOrId) {
 
 /**
  ** 公共方法:白名单过滤
- ** @param req
- ** @returns {{
- **   title: string,
- **   description: string,
- **   cover: string,
- **   type: string,
- **   difficulty: number,
- **   startTime: Date,
- **   endTime: Date,
- **   regStart: Date,
- **   regEnd: Date,
- **   capacity: number,
- **   feeType: string,
- **   feeAmount: number,
- **   status: string,
- **   creatorId: number,
- **   venueId: number,
- ** }}
+ * @param req
+ * @returns {{
+ *   title: string,
+ *   description: string,
+ *   cover: string,
+ *   type: string,
+ *   difficulty: number,
+ *   startTime: Date,
+ *   endTime: Date,
+ *   regStart: Date,
+ *   regEnd: Date,
+ *   capacity: number,
+ *   feeType: string,
+ *   feeAmount: number,
+ *   status: string,
+ *   creatorId: number,
+ *   venueId: number,
+ * }}
  */
 function filterBody(req) {
 	return {
@@ -270,4 +282,4 @@ function filterBody(req) {
 	}
 }
 
-module.exports = router
+export default router

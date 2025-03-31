@@ -1,16 +1,20 @@
-const express = require('express')
+import express from 'express'
+import models from '../../models/index.js'
+const { User } = models
+import { Op } from 'sequelize'
+import pkg from 'http-errors'
+const { BadRequest, Unauthorized, NotFound } = pkg
+import { success, failure } from '../../utils/responses.js'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+
 const router = express.Router()
-const { User } = require('../../models')
-const { Op } = require('sequelize')
-const { BadRequest, Unauthorized, NotFound } = require('http-errors')
-const { success, failure } = require('../../utils/responses')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
 
 /**
  ** 用户登录
  ** POST /auth/login
  */
+// #region 用户登录
 router.post('/login', async (req, res) => {
 	try {
 		const { login, password } = req.body
@@ -49,48 +53,87 @@ router.post('/login', async (req, res) => {
 			process.env.SECRET,
 			{ expiresIn: '1d' },
 		)
+
+		//* 返回用户信息和token
 		success(res, '登录成功', { token })
 	} catch (error) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 用户注册
  ** POST /auth/register
  */
+// #region 用户注册
 router.post('/register', async (req, res) => {
 	try {
-		const body = filterBody(req)
-		const user = await User.create(body)
+		const { username, email, password } = req.body
 
-		//* 不返回密码字段
-		const userWithoutPassword = user.toJSON()
-		delete userWithoutPassword.password
+		//* 验证必填字段
+		if (!username) {
+			throw new BadRequest('用户名必须填写')
+		}
+		if (!email) {
+			throw new BadRequest('邮箱必须填写')
+		}
+		if (!password) {
+			throw new BadRequest('密码必须填写')
+		}
 
-		success(res, '注册成功', { user: userWithoutPassword }, 201)
+		//* 验证邮箱格式
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+		if (!emailRegex.test(email)) {
+			throw new BadRequest('邮箱格式不正确')
+		}
+
+		//* 验证密码长度
+		if (password.length < 6) {
+			throw new BadRequest('密码长度不能小于6位')
+		}
+
+		//* 检查用户名是否已存在
+		const existingUser = await User.findOne({
+			where: {
+				[Op.or]: [{ username }, { email }],
+			},
+		})
+
+		if (existingUser) {
+			throw new BadRequest('用户名或邮箱已被注册')
+		}
+
+		//* 创建新用户
+		const user = await User.create({
+			username,
+			email,
+			password: bcrypt.hashSync(password, 10),
+		})
+
+		//* 生成身份验证令牌
+		const token = jwt.sign(
+			{
+				userId: user.id,
+			},
+			process.env.SECRET,
+			{ expiresIn: '1d' },
+		)
+
+		//* 返回用户信息和token
+		success(res, '注册成功', {
+			token,
+			user: {
+				id: user.id,
+				username: user.username,
+				email: user.email,
+				role: user.role,
+			},
+		})
 	} catch (error) {
 		failure(res, error)
 	}
 })
+// #endregion
 
-/**
- ** 公共方法：白名单过滤
- * @param req
- * @returns {{
- *   username: string,
- *   password: string,
- *   email: string,
- *   role: number
- * }}
- */
-function filterBody(req) {
-	return {
-		username: req.body.username,
-		password: req.body.password,
-		email: req.body.email,
-		role: 0,
-	}
-}
-
-module.exports = router
+export default router

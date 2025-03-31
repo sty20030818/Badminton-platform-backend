@@ -1,4 +1,4 @@
-const createError = require('http-errors')
+import createError from 'http-errors'
 
 /**
  ** 请求成功
@@ -7,7 +7,7 @@ const createError = require('http-errors')
  * @param data
  * @param code
  */
-function success(res, message, data = {}, code = 200) {
+export function success(res, message, data = {}, code = 200) {
 	res.status(code).json({
 		status: true,
 		message,
@@ -16,11 +16,11 @@ function success(res, message, data = {}, code = 200) {
 }
 
 /**
- * 请求失败
+ ** 请求失败
  * @param res
  * @param error
  */
-function failure(res, error) {
+export function failure(res, error) {
 	// 默认响应为 500,服务器错误
 	let statusCode = 500
 	let errors = '服务器错误'
@@ -44,9 +44,4 @@ function failure(res, error) {
 		message: `请求失败: ${error.name}`,
 		errors: Array.isArray(errors) ? errors : [errors],
 	})
-}
-
-module.exports = {
-	success,
-	failure,
 }

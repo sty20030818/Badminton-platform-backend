@@ -1,14 +1,17 @@
-const express = require('express')
+import express from 'express'
+import models from '../../models/index.js'
+const { Venue, Event, User } = models
+import pkg from 'http-errors'
+const { NotFound } = pkg
+import { success, failure } from '../../utils/responses.js'
+
 const router = express.Router()
-const { Venue, Event, User } = require('../../models')
-const { Op } = require('sequelize')
-const { NotFound } = require('http-errors')
-const { success, failure } = require('../../utils/responses')
 
 /**
  ** 查询场馆列表
  ** GET /admin/venues
  */
+// #region 查询场馆列表
 router.get('/', async function (req, res) {
 	try {
 		//* 获取查询参数
@@ -87,11 +90,13 @@ router.get('/', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 查询场馆详情
  ** GET /admin/venues/:id
  */
+// #region 查询场馆详情
 router.get('/:id', async function (req, res) {
 	try {
 		const venue = await getVenue(req)
@@ -101,11 +106,13 @@ router.get('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 创建场馆
  ** POST /admin/venues
  */
+// #region 创建场馆
 router.post('/', async function (req, res) {
 	try {
 		const body = filterBody(req)
@@ -121,11 +128,13 @@ router.post('/', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 更新场馆
  ** PUT /admin/venues/:id
  */
+// #region 更新场馆
 router.put('/:id', async function (req, res) {
 	try {
 		const venue = await getVenue(req)
@@ -137,11 +146,13 @@ router.put('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 删除场馆
  ** DELETE /admin/venues/:id
  */
+// #region 删除场馆
 router.delete('/:id', async function (req, res) {
 	try {
 		const venue = await getVenue(req)
@@ -152,6 +163,7 @@ router.delete('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 公共方法：查询当前场馆
@@ -193,18 +205,18 @@ async function getVenue(reqOrId) {
 
 /**
  ** 公共方法:白名单过滤
- ** @param req
- ** @returns {{
- **   name: string,
- **   location: string,
- **   description: string,
- **   status: string,
- **   cover: string,
- **   latitude: number,
- **   longitude: number,
- **   openTime: string,
- **   closeTime: string,
- ** }}
+ * @param req
+ * @returns {{
+ *   name: string,
+ *   location: string,
+ *   description: string,
+ *   status: string,
+ *   cover: string,
+ *   latitude: number,
+ *   longitude: number,
+ *   openTime: string,
+ *   closeTime: string,
+ * }}
  */
 function filterBody(req) {
 	return {
@@ -220,4 +232,4 @@ function filterBody(req) {
 	}
 }
 
-module.exports = router
+export default router

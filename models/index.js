@@ -1,21 +1,23 @@
 'use strict'
 
-const Sequelize = require('sequelize')
+import Sequelize from 'sequelize'
+import config from '../config/config.js'
+
 const env = process.env.NODE_ENV || 'development'
-const config = require('../config/config')[env]
+const dbConfig = config[env]
 
 // 创建 Sequelize 实例
-const sequelize = config.use_env_variable
-	? new Sequelize(process.env[config.use_env_variable], config)
-	: new Sequelize(config.database, config.username, config.password, config)
+const sequelize = dbConfig.use_env_variable
+	? new Sequelize(process.env[dbConfig.use_env_variable], dbConfig)
+	: new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, dbConfig)
 
 // 导入模型
-const User = require('./user')
-const Event = require('./event')
-const Venue = require('./venue')
-const Group = require('./group')
-const GroupMember = require('./groupmember')
-const EventComment = require('./eventcomment')
+import User from './user.js'
+import Event from './event.js'
+import Venue from './venue.js'
+import Group from './group.js'
+import GroupMember from './groupmember.js'
+import EventComment from './eventcomment.js'
 
 // 初始化所有模型
 const models = {
@@ -35,7 +37,7 @@ Object.values(models).forEach((model) => {
 })
 
 // 导出模型和 Sequelize 实例
-module.exports = {
+export default {
 	...models,
 	sequelize,
 	Sequelize,

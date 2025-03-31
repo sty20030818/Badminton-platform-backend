@@ -1,14 +1,17 @@
-const express = require('express')
+import express from 'express'
+import models from '../../models/index.js'
+const { Point, User } = models
+import pkg from 'http-errors'
+const { NotFound } = pkg
+import { success, failure } from '../../utils/responses.js'
+
 const router = express.Router()
-const { Point, User } = require('../../models')
-const { Op } = require('sequelize')
-const { NotFound } = require('http-errors')
-const { success, failure } = require('../../utils/responses')
 
 /**
  * 查询积分列表
  * GET /admin/points
  */
+// #region 查询积分列表
 router.get('/', async function (req, res) {
 	try {
 		const query = req.query
@@ -48,11 +51,13 @@ router.get('/', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  * 查询积分详情
  * GET /admin/points/:id
  */
+// #region 查询积分详情
 router.get('/:id', async function (req, res) {
 	try {
 		const point = await getPoint(req)
@@ -61,11 +66,13 @@ router.get('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  * 添加积分
  * POST /admin/points
  */
+// #region 添加积分
 router.post('/', async function (req, res) {
 	try {
 		const body = filterBody(req)
@@ -75,11 +82,13 @@ router.post('/', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  * 更新积分
  * PUT /admin/points/:id
  */
+// #region 更新积分
 router.put('/:id', async function (req, res) {
 	try {
 		const point = await getPoint(req)
@@ -90,11 +99,13 @@ router.put('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  * 删除积分
  * DELETE /admin/points/:id
  */
+// #region 删除积分
 router.delete('/:id', async function (req, res) {
 	try {
 		const point = await getPoint(req)
@@ -104,11 +115,13 @@ router.delete('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  * 查询积分排行榜
  * GET /admin/points/leaderboard
  */
+// #region 查询积分排行榜
 router.get('/leaderboard/top', async function (req, res) {
 	try {
 		const { limit = 10 } = req.query
@@ -135,6 +148,7 @@ router.get('/leaderboard/top', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  * 公共方法：查询当前积分记录
@@ -176,4 +190,4 @@ function filterBody(req) {
 	}
 }
 
-module.exports = router
+export default router

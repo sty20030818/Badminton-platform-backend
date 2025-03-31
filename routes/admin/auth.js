@@ -1,17 +1,21 @@
-const express = require('express')
-const router = express.Router()
-const { User } = require('../../models')
-const { Op } = require('sequelize')
-const { BadRequest, Unauthorized, NotFound } = require('http-errors')
-const { success, failure } = require('../../utils/responses')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
+import express from 'express'
+import models from '../../models/index.js'
+const { User } = models
+import { Op } from 'sequelize'
+import pkg from 'http-errors'
+const { BadRequest, Unauthorized, NotFound } = pkg
+import { success, failure } from '../../utils/responses.js'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 // const crypto = require('crypto')
+
+const router = express.Router()
 
 /**
  ** 管理员登录
  ** POST /admin/auth/login
  */
+// #region 管理员登录
 router.post('/login', async (req, res) => {
 	try {
 		// console.log(crypto.randomBytes(32).toString('hex'))
@@ -52,7 +56,6 @@ router.post('/login', async (req, res) => {
 		const token = jwt.sign(
 			{
 				userId: user.id,
-				username: user.username,
 			},
 			process.env.SECRET,
 			{ expiresIn: '7d' },
@@ -62,5 +65,6 @@ router.post('/login', async (req, res) => {
 		failure(res, error)
 	}
 })
+// #endregion
 
-module.exports = router
+export default router

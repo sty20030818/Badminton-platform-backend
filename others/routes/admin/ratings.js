@@ -1,14 +1,18 @@
-const express = require('express')
+import express from 'express'
+import models from '../../models/index.js'
+const { Rating, User } = models
+import { Op } from 'sequelize'
+import pkg from 'http-errors'
+const { NotFound } = pkg
+import { success, failure } from '../../utils/responses.js'
+
 const router = express.Router()
-const { Rating, User } = require('../../models')
-const { Op } = require('sequelize')
-const { NotFound } = require('http-errors')
-const { success, failure } = require('../../utils/responses')
 
 /**
  * 查询评分列表
  * GET /admin/ratings
  */
+// #region 查询评分列表
 router.get('/', async function (req, res) {
 	try {
 		const query = req.query
@@ -54,11 +58,13 @@ router.get('/', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  * 查询评分详情
  * GET /admin/ratings/:id
  */
+// #region 查询评分详情
 router.get('/:id', async function (req, res) {
 	try {
 		const rating = await getRating(req)
@@ -67,11 +73,13 @@ router.get('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  * 更新评分
  * PUT /admin/ratings/:id
  */
+// #region 更新评分
 router.put('/:id', async function (req, res) {
 	try {
 		const rating = await getRating(req)
@@ -82,11 +90,13 @@ router.put('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  * 删除评分
  * DELETE /admin/ratings/:id
  */
+// #region 删除评分
 router.delete('/:id', async function (req, res) {
 	try {
 		const rating = await getRating(req)
@@ -96,11 +106,13 @@ router.delete('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  * 查询用户评分统计
  * GET /admin/ratings/statistics/user/:userId
  */
+// #region 查询用户评分统计
 router.get('/statistics/user/:userId', async function (req, res) {
 	try {
 		const { userId } = req.params
@@ -120,6 +132,7 @@ router.get('/statistics/user/:userId', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  * 公共方法：查询当前评分
@@ -167,4 +180,4 @@ function filterBody(req) {
 	}
 }
 
-module.exports = router
+export default router

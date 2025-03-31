@@ -1,9 +1,11 @@
-const jwt = require('jsonwebtoken')
-const { User } = require('../models')
-const { Unauthorized } = require('http-errors')
-const { success, failure } = require('../utils/responses')
+import jwt from 'jsonwebtoken'
+import models from '../models/index.js'
+const { User } = models
+import pkg from 'http-errors'
+const { Unauthorized } = pkg
+import { failure } from '../utils/responses.js'
 
-module.exports = async (req, res, next) => {
+export default async (req, res, next) => {
 	try {
 		//* 判断 Token 是否存在
 		const { token } = req.headers
@@ -19,7 +21,7 @@ module.exports = async (req, res, next) => {
 
 		//* 查询一下,当前用户
 		const user = await User.findByPk(userId, {
-			attributes: ['id', 'username'], //* 只查询需要的字段
+			attributes: ['id'], //* 只查询需要的字段
 		})
 		if (!user) {
 			throw new Unauthorized('用户不存在')

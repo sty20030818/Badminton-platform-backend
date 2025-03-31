@@ -1,9 +1,11 @@
-const jwt = require('jsonwebtoken')
-const { User } = require('../models')
-const { Unauthorized } = require('http-errors')
-const { success, failure } = require('../utils/responses')
+import jwt from 'jsonwebtoken'
+import models from '../models/index.js'
+const { User } = models
+import pkg from 'http-errors'
+const { Unauthorized } = pkg
+import { failure } from '../utils/responses.js'
 
-module.exports = async (req, res, next) => {
+export default async (req, res, next) => {
 	try {
 		//* 判断 Token 是否存在
 		const { token } = req.headers
@@ -30,12 +32,7 @@ module.exports = async (req, res, next) => {
 			throw new Unauthorized('您没有权限使用当前接口')
 		}
 
-		//* 二次查询，查询完整的 user 对象
-		user = await User.findByPk(userId) //* 不带 attributes，查询所有字段
-		if (!user) {
-			throw new Unauthorized('用户不存在') //* 再次检查，防止并发问题
-		}
-		//* 如果通过验证,将完整的user 对象挂载到 req 上,方便后续中间件或路由使用
+		//* 如果通过验证,将 user 对象挂载到 req 上,方便后续中间件或路由使用
 		req.user = user
 		//* 一定要加 next(),才能继续进入到后续中间件或路由
 		next()

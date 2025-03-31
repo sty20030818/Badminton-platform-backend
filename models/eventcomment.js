@@ -1,8 +1,8 @@
 'use strict'
-const { Model } = require('sequelize')
-const moment = require('moment')
+import { Model } from 'sequelize'
+import moment from 'moment'
 
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
 	class EventComment extends Model {
 		static associate(models) {
 			// 定义关联关系
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
 
 		//* 在输出 JSON 时格式化时间
 		toJSON() {
-			const values = Object.assign({}, this.get())
+			const values = { ...this.get() }
 
 			//* 格式化时间字段
 			if (values.createdAt) {

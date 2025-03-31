@@ -1,24 +1,25 @@
-const express = require('express')
-const router = express.Router()
+import express from 'express'
 
 //* 路由中间件
-const adminAuth = require('../middlewares/admin-auth')
-const userAuth = require('../middlewares/user-auth')
+import adminAuth from '../middlewares/admin-auth.js'
+import userAuth from '../middlewares/user-auth.js'
 
 //* 前台路由文件
-const indexRouter = require('../routes/index')
-const authRouter = require('../routes/user/auth')
-const userRouter = require('../routes/user/user')
-const eventsRouter = require('../routes/user/events')
+import indexRouter from '../routes/index.js'
+import authRouter from '../routes/user/auth.js'
+import userRouter from '../routes/user/user.js'
+import eventsRouter from '../routes/user/events.js'
 
 //* 后台路由文件
-const adminAuthRouter = require('../routes/admin/auth')
-const adminEventsRouter = require('../routes/admin/events')
-const adminVenuesRouter = require('../routes/admin/venues')
-const adminUsersRouter = require('../routes/admin/users')
-const adminGroupsRouter = require('../routes/admin/groups')
+import adminAuthRouter from '../routes/admin/auth.js'
+import adminEventsRouter from '../routes/admin/events.js'
+import adminVenuesRouter from '../routes/admin/venues.js'
+import adminUsersRouter from '../routes/admin/users.js'
+import adminGroupsRouter from '../routes/admin/groups.js'
 // const adminPointsRouter = require('../routes/admin/points')
 // const adminRatingsRouter = require('../routes/admin/ratings')
+
+const router = express.Router()
 
 //* 前台路由配置
 router.use('/', indexRouter)
@@ -35,4 +36,4 @@ router.use('/admin/groups', adminAuth, adminGroupsRouter)
 // router.use('/admin/points', adminAuth, adminPointsRouter)
 // router.use('/admin/ratings', adminAuth, adminRatingsRouter)
 
-module.exports = router
+export default router

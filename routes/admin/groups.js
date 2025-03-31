@@ -1,14 +1,18 @@
-const express = require('express')
+import express from 'express'
+import models from '../../models/index.js'
+const { Group, User, GroupMember } = models
+import pkg from 'http-errors'
+const { NotFound, Conflict } = pkg
+import { success, failure } from '../../utils/responses.js'
+import { Op } from 'sequelize'
+
 const router = express.Router()
-const { Group, User, GroupMember } = require('../../models')
-const { Op } = require('sequelize')
-const { NotFound } = require('http-errors')
-const { success, failure } = require('../../utils/responses')
 
 /**
  ** 查询小组列表
  ** GET /admin/groups
  */
+// #region 查询小组列表
 router.get('/', async function (req, res) {
 	try {
 		const { query } = req
@@ -60,11 +64,13 @@ router.get('/', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 查询小组详情
  ** GET /admin/groups/:id
  */
+// #region 查询小组详情
 router.get('/:id', async function (req, res) {
 	try {
 		const group = await getGroup(req)
@@ -73,11 +79,13 @@ router.get('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 创建小组
  ** POST /admin/groups
  */
+// #region 创建小组
 router.post('/', async function (req, res) {
 	try {
 		const body = {
@@ -90,11 +98,13 @@ router.post('/', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 更新小组
  ** PUT /admin/groups/:id
  */
+// #region 更新小组
 router.put('/:id', async function (req, res) {
 	try {
 		const group = await getGroup(req)
@@ -105,11 +115,13 @@ router.put('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 删除小组
  ** DELETE /admin/groups/:id
  */
+// #region 删除小组
 router.delete('/:id', async function (req, res) {
 	try {
 		const group = await getGroup(req)
@@ -119,11 +131,13 @@ router.delete('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 查询小组成员列表
  ** GET /admin/groups/:id/members
  */
+// #region 查询小组成员列表
 router.get('/:id/members', async function (req, res) {
 	try {
 		const { id } = req.params
@@ -135,6 +149,7 @@ router.get('/:id/members', async function (req, res) {
 			include: [
 				{
 					model: User,
+					as: 'user',
 					attributes: ['id', 'username', 'email'],
 				},
 			],
@@ -145,9 +160,9 @@ router.get('/:id/members', async function (req, res) {
 
 		//* 重新格式化返回数据
 		const formattedMembers = members.rows.map((member) => ({
-			userId: member.User.id,
-			username: member.User.username,
-			email: member.User.email,
+			userId: member.user.id,
+			username: member.user.username,
+			email: member.user.email,
 		}))
 
 		success(res, '查询小组成员列表成功', {
@@ -162,11 +177,13 @@ router.get('/:id/members', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 添加小组成员
  ** POST /admin/groups/:id/members
  */
+// #region 添加小组成员
 router.post('/:id/members', async function (req, res) {
 	try {
 		const { id: groupId } = req.params
@@ -189,7 +206,7 @@ router.post('/:id/members', async function (req, res) {
 			where: { groupId, userId },
 		})
 		if (existingMember) {
-			throw Conflict('该用户已经是小组成员')
+			throw new Conflict('该用户已经是小组成员')
 		}
 
 		//* 创建小组成员关系
@@ -200,28 +217,46 @@ router.post('/:id/members', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 移除小组成员
- ** DELETE /admin/groups/:groupId/members/:userId
+ ** DELETE /admin/groups/:id/members/:userId
  */
-router.delete('/:groupId/members/:userId', async function (req, res) {
+// #region 移除小组成员
+router.delete('/:id/members/:userId', async function (req, res) {
 	try {
-		const { groupId, userId } = req.params
+		const { id: groupId, userId } = req.params
+
+		//* 检查小组是否存在
+		const group = await Group.findByPk(groupId)
+		if (!group) {
+			throw new NotFound('小组不存在')
+		}
+
+		//* 检查用户是否存在
+		const user = await User.findByPk(userId)
+		if (!user) {
+			throw new NotFound('用户不存在')
+		}
+
+		//* 检查用户是否是小组成员
 		const member = await GroupMember.findOne({
 			where: { groupId, userId },
 		})
-
 		if (!member) {
 			throw new NotFound('该用户不是小组成员')
 		}
 
+		//* 删除小组成员关系
 		await member.destroy()
+
 		success(res, '移除小组成员成功')
 	} catch (error) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 公共方法：查询当前小组
@@ -234,6 +269,15 @@ async function getGroup(req) {
 				model: User,
 				as: 'creator',
 				attributes: ['id', 'username', 'email'],
+			},
+			{
+				model: User,
+				as: 'members',
+				attributes: ['id', 'nickname', 'avatar'],
+				through: {
+					model: GroupMember,
+					attributes: [],
+				},
 			},
 		],
 	})
@@ -250,14 +294,22 @@ async function getGroup(req) {
  * @param req
  * @returns {{
  *   name: string,
- *   eventId: number
+ *   description: string,
+ *   cover: string,
+ *   capacity: number,
+ *   status: string,
+ *   creatorId: number
  * }}
  */
 function filterBody(req) {
 	return {
 		name: req.body.name,
-		eventId: req.body.eventId,
+		description: req.body.description,
+		cover: req.body.cover,
+		capacity: req.body.capacity,
+		status: req.body.status,
+		creatorId: req.user.id,
 	}
 }
 
-module.exports = router
+export default router

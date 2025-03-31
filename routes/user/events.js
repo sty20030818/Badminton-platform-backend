@@ -1,15 +1,17 @@
-const express = require('express')
+import express from 'express'
+import models from '../../models/index.js'
+const { Event, Venue, User, Group } = models
+import pkg from 'http-errors'
+const { NotFound } = pkg
+import { success, failure } from '../../utils/responses.js'
+
 const router = express.Router()
-const { Event, Venue, User, Group, GroupMember } = require('../../models')
-const { Op } = require('sequelize')
-const { NotFound } = require('http-errors')
-const { success, failure } = require('../../utils/responses')
-const models = require('../../models')
 
 /**
  ** 查询活动列表
  ** GET /events
  */
+// #region 查询活动列表
 router.get('/', async function (req, res) {
 	try {
 		const { query } = req
@@ -47,120 +49,102 @@ router.get('/', async function (req, res) {
 							model: User,
 							as: 'members',
 							attributes: ['id', 'nickname', 'avatar'],
-							through: {
-								models: GroupMember,
-								attributes: [],
-							},
 						},
 					],
 				},
 			],
-			where: {},
 		}
 
-		if (query.title) {
-			condition.where.title = {
-				[Op.like]: `%${query.title}%`,
-			}
-		}
-		if (query.venueId) {
-			condition.where.venueId = query.venueId
-		}
-		if (query.difficulty) {
-			condition.where.difficulty = query.difficulty
-		}
-		if (query.type) {
-			condition.where.type = query.type
-		}
-		if (query.feeType) {
-			condition.where.feeType = query.feeType
-		}
+		//* 查询总数
+		const total = await Event.count()
 
 		//* 查询数据
-		const { count, rows } = await Event.findAndCountAll(condition)
+		const events = await Event.findAll(condition)
 
-		//* 返回查询结果
 		success(res, '查询活动列表成功', {
-			events: rows,
+			events,
 			pagination: {
-				total: count,
 				currentPage,
 				pageSize,
+				total,
 			},
 		})
 	} catch (error) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 查询活动详情
  ** GET /events/:id
  */
+// #region 查询活动详情
 router.get('/:id', async function (req, res) {
 	try {
-		const event = await getEvent(req)
-
-		success(res, '查询活动成功', { event })
+		const event = await getEvent(req.params.id)
+		success(res, '查询活动详情成功', { event })
 	} catch (error) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 创建活动
  ** POST /events
  */
+// #region 创建活动
 router.post('/', async function (req, res) {
 	try {
-		const body = {
-			...filterBody(req),
-			creatorId: req.user.id,
-		}
+		const body = filterBody(req)
+		body.creatorId = req.user.id
 
-		// 检查场地是否存在
-		if (body.venueId) {
-			const venue = await Venue.findByPk(body.venueId)
-			if (!venue) {
-				throw new NotFound(`ID: ${body.venueId}的场地未找到`)
-			}
-		}
-
-		// 创建活动
 		const event = await Event.create(body)
-
-		// 重新查询活动信息,包含关联数据
-		const eventWithDetails = await getEvent(event.id)
-
-		success(res, '创建活动成功', { event: eventWithDetails }, 201)
+		success(res, '创建活动成功', { event }, 201)
 	} catch (error) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 更新活动
  ** PUT /events/:id
  */
+// #region 更新活动
 router.put('/:id', async function (req, res) {
 	try {
-		const event = await getEvent(req)
-		const body = filterBody(req)
+		const event = await getEvent(req.params.id)
 
+		//* 验证是否是创建者
+		if (event.creatorId !== req.user.id) {
+			throw new NotFound('您不是该活动的创建者,无法修改')
+		}
+
+		const body = filterBody(req)
 		await event.update(body)
+
 		success(res, '更新活动成功', { event })
 	} catch (error) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
  ** 删除活动
  ** DELETE /events/:id
  */
+// #region 删除活动
 router.delete('/:id', async function (req, res) {
 	try {
-		const event = await getEvent(req)
+		const event = await getEvent(req.params.id)
+
+		//* 验证是否是创建者
+		if (event.creatorId !== req.user.id) {
+			throw new NotFound('您不是该活动的创建者,无法删除')
+		}
 
 		await event.destroy()
 		success(res, '删除活动成功')
@@ -168,16 +152,16 @@ router.delete('/:id', async function (req, res) {
 		failure(res, error)
 	}
 })
+// #endregion
 
 /**
- ** 公共方法：查询当前活动
+ ** 公共方法：获取活动
+ * @param reqOrId
+ * @returns {Promise<Event>}
  */
 async function getEvent(reqOrId) {
-	//* 获取活动 ID
 	const id = typeof reqOrId === 'object' ? reqOrId.params.id : reqOrId
-	//* 查询当前活动
 	const event = await Event.findByPk(id, {
-		attributes: { exclude: ['creatorId', 'venueId', 'createdAt', 'updatedAt'] },
 		include: [
 			{
 				model: User,
@@ -203,44 +187,38 @@ async function getEvent(reqOrId) {
 						model: User,
 						as: 'members',
 						attributes: ['id', 'nickname', 'avatar'],
-						through: {
-							models: GroupMember,
-							attributes: [],
-						},
 					},
 				],
 			},
 		],
 	})
 
-	//* 如果没有找到,就抛出异常
 	if (!event) {
-		throw new NotFound(`ID: ${id}的活动未找到`)
+		throw new NotFound('活动不存在')
 	}
 
 	return event
 }
 
 /**
- ** 公共方法:白名单过滤
- ** @param req
- ** @returns {{
- **   title: string,
- **   description: string,
- **   cover: string,
- **   type: string,
- **   difficulty: number,
- **   startTime: Date,
- **   endTime: Date,
- **   regStart: Date,
- **   regEnd: Date,
- **   capacity: number,
- **   feeType: string,
- **   feeAmount: number,
- **   status: string,
- **   creatorId: number,
- **   venueId: number,
- ** }}
+ ** 公共方法：白名单过滤
+ * @param req
+ * @returns {{
+ *   title: string,
+ *   description: string,
+ *   cover: string,
+ *   type: string,
+ *   difficulty: number,
+ *   startTime: Date,
+ *   endTime: Date,
+ *   regStart: Date,
+ *   regEnd: Date,
+ *   capacity: number,
+ *   feeType: string,
+ *   feeAmount: number,
+ *   status: string,
+ *   venueId: number
+ * }}
  */
 function filterBody(req) {
 	return {
@@ -261,4 +239,4 @@ function filterBody(req) {
 	}
 }
 
-module.exports = router
+export default router
