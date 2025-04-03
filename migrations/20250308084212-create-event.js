@@ -1,6 +1,5 @@
-'use strict'
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default {
 	up: async (queryInterface, Sequelize) => {
 		await queryInterface.createTable('events', {
 			id: {
@@ -37,6 +36,12 @@ module.exports = {
 				allowNull: false,
 				defaultValue: 1,
 				comment: '活动难度等级,非空,范围0-5',
+			},
+			registeredCount: {
+				type: Sequelize.INTEGER,
+				allowNull: false,
+				defaultValue: 0,
+				comment: '报名人数',
 			},
 			startTime: {
 				type: Sequelize.DATE,

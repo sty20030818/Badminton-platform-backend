@@ -1,7 +1,5 @@
-'use strict'
-
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default {
 	async up(queryInterface, Sequelize) {
 		await queryInterface.bulkInsert(
 			'group_members',
@@ -38,13 +36,13 @@ module.exports = {
 				},
 				{
 					groupId: 5, // 高手组
-					userId: 1, // 管理员
+					userId: 1, // 石头鱼
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},
 				{
 					groupId: 6, // 精英组
-					userId: 1, // 管理员
+					userId: 2, // 测试用户2
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},

@@ -9,70 +9,35 @@ const router = express.Router()
 
 /**
  ** 查询场馆列表
- ** GET /admin/venues
+ ** GET /venues
  */
 // #region 查询场馆列表
 router.get('/', async function (req, res) {
 	try {
-		//* 获取查询参数
 		const { query } = req
-
-		//* 获取分页所需要的两个参数,currentPage 和 pageSize
-		//* 如果没有传递这两个参数,就使用默认值
-		//* 默认是第1页
-		//* 默认每页显示 10 条数据
 		const currentPage = Math.abs(Number(query.currentPage)) || 1
 		const pageSize = Math.abs(Number(query.pageSize)) || 10
-
-		//* 计算offset
 		const offset = (currentPage - 1) * pageSize
 
-		//* 定义查询条件
 		const condition = {
 			order: [['id', 'ASC']],
 			limit: pageSize,
 			offset: offset,
-			include: [
-				{
-					model: Event,
-					as: 'events',
-					// through: { attributes: [] }, // 不返回中间表的字段
-					required: false, // LEFT JOIN,没有活动的场馆也会被查出来
-					attributes: ['id', 'title', 'description', 'startTime', 'endTime'],
-					where: {
-						//* 活动开始时间大于等于当前时间
-						// startTime: {
-						// 	[Op.gte]: new Date(),
-						// },
-					},
-					include: [
-						{
-							model: User,
-							as: 'creator',
-							attributes: ['id', 'username'],
-						},
-					],
-				},
-			],
+			attributes: { exclude: ['createdAt', 'updatedAt'] },
 			where: {},
 		}
 
-		//* 如果有 name 查询参数,就添加到 where 条件中
 		if (query.name) {
 			condition.where.name = {
 				[Op.like]: `%${query.name}%`,
 			}
 		}
-
-		//* 如果有 status 查询参数,就添加到 where 条件中
 		if (query.status) {
 			condition.where.status = query.status
 		}
 
-		//* 查询数据
 		const { count, rows } = await Venue.findAndCountAll(condition)
 
-		//* 返回查询结果
 		success(res, '查询场馆列表成功', {
 			venues: rows,
 			pagination: {
@@ -89,14 +54,14 @@ router.get('/', async function (req, res) {
 
 /**
  ** 查询场馆详情
- ** GET /admin/venues/:id
+ ** GET /venues/:id
  */
 // #region 查询场馆详情
 router.get('/:id', async function (req, res) {
 	try {
-		const venue = await getVenue(req)
+		const { venue, events } = await getVenue(req)
 
-		success(res, '查询场馆成功', { venue })
+		success(res, '查询场馆成功', { venue, events })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -105,7 +70,7 @@ router.get('/:id', async function (req, res) {
 
 /**
  ** 创建场馆
- ** POST /admin/venues
+ ** POST /venues
  */
 // #region 创建场馆
 router.post('/', async function (req, res) {
@@ -161,42 +126,36 @@ router.delete('/:id', async function (req, res) {
 // #endregion
 
 /**
- ** 公共方法：查询当前场馆
+ ** 公共方法：获取场馆
+ * @param req
+ * @returns { venue, events}
  */
-async function getVenue(reqOrId) {
-	//* 获取场馆 ID
-	const id = typeof reqOrId === 'object' ? reqOrId.params.id : reqOrId
-	//* 查询当前场馆
+// #region 获取场馆
+async function getVenue(req) {
+	const { id } = req.params
 	const venue = await Venue.findByPk(id, {
+		attributes: { exclude: ['createdAt', 'updatedAt'] },
+	})
+
+	if (!venue) {
+		throw new NotFound(`ID为${id}的场馆未找到`)
+	}
+
+	const events = await venue.getEvents({
+		attributes: { exclude: ['venueId', 'createdAt', 'updatedAt'] },
+		order: [['startTime', 'ASC']],
 		include: [
 			{
-				model: Event,
-				as: 'events',
-				required: false,
-				where: {
-					//* 活动开始时间大于等于当前时间
-					// startTime: {
-					// 	[Op.gte]: new Date(),
-					// },
-				},
-				include: [
-					{
-						model: User,
-						as: 'creator',
-						attributes: ['id', 'username'],
-					},
-				],
+				model: User,
+				as: 'creator',
+				attributes: ['id', 'nickname', 'avatar'],
 			},
 		],
 	})
 
-	//* 如果没有找到,就抛出异常
-	if (!venue) {
-		throw new NotFound(`ID: ${id}的场馆未找到`)
-	}
-
-	return venue
+	return { venue, events }
 }
+// #endregion
 
 /**
  ** 公共方法:白名单过滤

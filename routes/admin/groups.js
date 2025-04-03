@@ -27,26 +27,19 @@ router.get('/', async function (req, res) {
 			include: [
 				{
 					model: User,
-					as: 'creator',
-					attributes: ['id', 'username', 'email'],
-				},
-				{
-					model: User,
 					as: 'members',
 					attributes: ['id', 'nickname', 'avatar'],
 					through: {
-						model: GroupMember,
 						attributes: [],
 					},
 				},
 			],
+			where: {},
 		}
 
 		if (query.name) {
-			condition.where = {
-				name: {
-					[Op.like]: `%${query.name}%`,
-				},
+			condition.where.name = {
+				[Op.like]: `%${query.name}%`,
 			}
 		}
 

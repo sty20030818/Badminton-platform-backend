@@ -1,9 +1,10 @@
 import express from 'express'
 import models from '../../models/index.js'
-const { Event, Venue, User, Group } = models
+const { Event, Venue, User, Group, GroupMember } = models
 import pkg from 'http-errors'
 const { NotFound } = pkg
 import { success, failure } from '../../utils/responses.js'
+import { Op } from 'sequelize'
 
 const router = express.Router()
 
@@ -16,7 +17,7 @@ router.get('/', async function (req, res) {
 	try {
 		const { query } = req
 		const currentPage = Math.abs(Number(query.currentPage)) || 1
-		const pageSize = Math.abs(Number(query.pageSize)) || 10
+		const pageSize = Math.abs(Number(query.pageSize)) || 9
 		const offset = (currentPage - 1) * pageSize
 
 		const condition = {
@@ -28,31 +29,41 @@ router.get('/', async function (req, res) {
 				{
 					model: User,
 					as: 'creator',
-					attributes: ['id', 'nickname', 'avatar', 'introduce'],
+					attributes: ['id', 'nickname'],
 				},
 				{
 					model: Venue,
 					as: 'venue',
-					attributes: ['id', 'name', 'location', 'description'],
-				},
-				{
-					model: Group,
-					as: 'groups',
-					attributes: ['id', 'name', 'description', 'capacity'],
-					include: [
-						{
-							model: User,
-							as: 'creator',
-							attributes: ['id', 'nickname', 'avatar'],
-						},
-						{
-							model: User,
-							as: 'members',
-							attributes: ['id', 'nickname', 'avatar'],
-						},
-					],
+					attributes: ['id', 'name'],
 				},
 			],
+			where: {},
+		}
+
+		//* 根据条件查询
+		if (query.title) {
+			condition.where.title = {
+				[Op.like]: `%${query.title}%`,
+			}
+		}
+		if (query.type) {
+			condition.where.type = query.type
+		}
+		if (query.feeType) {
+			condition.where.feeType = query.feeType
+		}
+		if (query.difficulty) {
+			condition.where.difficulty = query.difficulty
+		}
+		if (query.startTime) {
+			condition.where.startTime = {
+				[Op.gte]: query.startTime,
+			}
+		}
+		if (query.endTime) {
+			condition.where.endTime = {
+				[Op.lte]: query.endTime,
+			}
 		}
 
 		//* 查询总数
@@ -82,8 +93,9 @@ router.get('/', async function (req, res) {
 // #region 查询活动详情
 router.get('/:id', async function (req, res) {
 	try {
-		const event = await getEvent(req.params.id)
-		success(res, '查询活动详情成功', { event })
+		const { event, creator, venue, groups } = await getEvent(req)
+
+		success(res, '查询活动详情成功', { event, creator, venue, groups })
 	} catch (error) {
 		failure(res, error)
 	}
@@ -115,10 +127,10 @@ router.post('/', async function (req, res) {
 // #region 更新活动
 router.put('/:id', async function (req, res) {
 	try {
-		const event = await getEvent(req.params.id)
+		const { event, creator } = await getEvent(req)
 
 		//* 验证是否是创建者
-		if (event.creatorId !== req.user.id) {
+		if (creator.id !== req.user.id) {
 			throw new NotFound('您不是该活动的创建者,无法修改')
 		}
 
@@ -139,14 +151,38 @@ router.put('/:id', async function (req, res) {
 // #region 删除活动
 router.delete('/:id', async function (req, res) {
 	try {
-		const event = await getEvent(req.params.id)
-
+		const { event, creator } = await getEvent(req)
 		//* 验证是否是创建者
-		if (event.creatorId !== req.user.id) {
+		if (creator.id !== req.user.id) {
 			throw new NotFound('您不是该活动的创建者,无法删除')
 		}
 
-		await event.destroy()
+		//* 开始事务
+		await models.sequelize.transaction(async (t) => {
+			//* 查询该活动下的所有小组
+			const groups = await Group.findAll({
+				where: { eventId: event.id },
+				transaction: t,
+			})
+
+			//* 删除所有小组的成员
+			for (const group of groups) {
+				await GroupMember.destroy({
+					where: { groupId: group.id },
+					transaction: t,
+				})
+			}
+
+			//* 删除所有小组
+			await Group.destroy({
+				where: { eventId: event.id },
+				transaction: t,
+			})
+
+			//* 删除活动
+			await event.destroy({ transaction: t })
+		})
+
 		success(res, '删除活动成功')
 	} catch (error) {
 		failure(res, error)
@@ -156,49 +192,59 @@ router.delete('/:id', async function (req, res) {
 
 /**
  ** 公共方法：获取活动
- * @param reqOrId
- * @returns {Promise<Event>}
+ * @param req
+ * @returns { event, creator, venue, groups}
  */
-async function getEvent(reqOrId) {
-	const id = typeof reqOrId === 'object' ? reqOrId.params.id : reqOrId
+// #region 获取活动
+async function getEvent(req) {
+	const { id } = req.params
 	const event = await Event.findByPk(id, {
-		include: [
-			{
-				model: User,
-				as: 'creator',
-				attributes: ['id', 'nickname', 'avatar', 'introduce'],
-			},
-			{
-				model: Venue,
-				as: 'venue',
-				attributes: ['id', 'name', 'location', 'description'],
-			},
-			{
-				model: Group,
-				as: 'groups',
-				attributes: ['id', 'name', 'description', 'capacity'],
-				include: [
-					{
-						model: User,
-						as: 'creator',
-						attributes: ['id', 'nickname', 'avatar'],
-					},
-					{
-						model: User,
-						as: 'members',
-						attributes: ['id', 'nickname', 'avatar'],
-					},
-				],
-			},
-		],
+		attributes: { exclude: ['createdAt', 'updatedAt'] },
 	})
 
 	if (!event) {
-		throw new NotFound('活动不存在')
+		throw new NotFound(`ID为${id}的活动未找到`)
 	}
 
-	return event
+	const creator = await event.getCreator({
+		attributes: ['id', 'nickname', 'avatar', 'introduce'],
+	})
+
+	const venue = await event.getVenue({
+		attributes: ['id', 'name', 'location', 'description'],
+	})
+
+	const groups = await event.getGroups({
+		attributes: ['id', 'name', 'description', 'capacity'],
+	})
+
+	// //* const groupCreators = await Promise.all(
+	// // 	groups.map(async (group) => {
+	// // 		const creator = await group.getCreator({
+	// // 			attributes: ['id', 'nickname', 'avatar', 'introduce'],
+	// // 		})
+	// // 		return {
+	// // 			groupId: group.id, // 可选：保留组的 ID
+	// // 			creator: creator, // 组的创建者信息
+	// // 		}
+	// // 	}),
+	// // )
+
+	// //* const groupMembers = await Promise.all(
+	// // 	groups.map(async (group) => {
+	// // 		const members = await group.getMembers({
+	// // 			attributes: ['id', 'nickname', 'avatar', 'introduce'],
+	// // 		})
+	// // 		return {
+	// // 			groupId: group.id, // 可选：保留组的 ID
+	// // 			members: members, // 组的创建者信息
+	// // 		}
+	// // 	}),
+	// // )
+
+	return { event, creator, venue, groups }
 }
+// #endregion
 
 /**
  ** 公共方法：白名单过滤

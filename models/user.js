@@ -13,15 +13,10 @@ export default (sequelize, DataTypes) => {
 				foreignKey: 'creatorId',
 				as: 'createdEvents',
 			})
-
-			User.hasMany(models.Group, {
-				foreignKey: 'creatorId',
-				as: 'createdGroups',
-			})
-
 			User.belongsToMany(models.Group, {
 				through: 'groupMember',
 				foreignKey: 'userId',
+				otherKey: 'groupId',
 				as: 'groups',
 			})
 		}
@@ -94,7 +89,7 @@ export default (sequelize, DataTypes) => {
 					}
 
 					if (value.length < 6 || value.length > 20) {
-						throw new BadRequest('密码长度必须是6 ~ 20之间')
+						throw new BadRequest('密码长度必须在6 ~ 20之间')
 					}
 
 					// 如果通过所有验证,进行hash处理并设置值

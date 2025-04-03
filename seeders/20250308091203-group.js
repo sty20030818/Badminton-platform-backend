@@ -1,7 +1,5 @@
-'use strict'
-
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default {
 	async up(queryInterface, Sequelize) {
 		await queryInterface.bulkInsert(
 			'Groups',
@@ -12,7 +10,6 @@ module.exports = {
 					capacity: 6,
 					status: '公开',
 					eventId: 1,
-					creatorId: 1,
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},
@@ -22,27 +19,24 @@ module.exports = {
 					capacity: 6,
 					status: '公开',
 					eventId: 1,
-					creatorId: 1,
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},
 				{
 					name: '休闲组2',
 					description: '适合新手玩家',
-					capacity: 4,
+					capacity: 6,
 					status: '公开',
 					eventId: 2,
-					creatorId: 2,
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},
 				{
 					name: '对抗组2',
 					description: '适合有基础的玩家',
-					capacity: 4,
+					capacity: 6,
 					status: '公开',
 					eventId: 2,
-					creatorId: 2,
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},
@@ -52,7 +46,6 @@ module.exports = {
 					capacity: 6,
 					status: '私密',
 					eventId: 3,
-					creatorId: 1,
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},
@@ -62,7 +55,6 @@ module.exports = {
 					capacity: 6,
 					status: '私密',
 					eventId: 3,
-					creatorId: 1,
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},

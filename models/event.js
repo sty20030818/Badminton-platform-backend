@@ -141,6 +141,17 @@ export default (sequelize, DataTypes) => {
 				},
 				comment: '活动难度等级,非空,范围0-5',
 			},
+			registeredCount: {
+				type: DataTypes.INTEGER,
+				allowNull: false,
+				defaultValue: 0,
+				comment: '报名人数',
+				validate: {
+					notNull: {
+						msg: '报名人数必须存在',
+					},
+				},
+			},
 			startTime: {
 				type: DataTypes.DATE,
 				allowNull: false,
@@ -251,7 +262,7 @@ export default (sequelize, DataTypes) => {
 			capacity: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
-				defaultValue: 6,
+				defaultValue: 0,
 				validate: {
 					notNull: {
 						msg: '活动容量必须存在',
@@ -260,8 +271,8 @@ export default (sequelize, DataTypes) => {
 						msg: '活动容量必须是整数',
 					},
 					min: {
-						args: [1],
-						msg: '活动容量必须大于0',
+						args: [0],
+						msg: '活动容量必须大于等于0',
 					},
 					max: {
 						args: [200],

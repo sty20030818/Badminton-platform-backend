@@ -7,7 +7,7 @@ const { BadRequest, Unauthorized, NotFound } = pkg
 import { success, failure } from '../../utils/responses.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-// const crypto = require('crypto')
+//* const crypto = require('crypto')
 
 const router = express.Router()
 
@@ -18,7 +18,7 @@ const router = express.Router()
 // #region 管理员登录
 router.post('/login', async (req, res) => {
 	try {
-		// console.log(crypto.randomBytes(32).toString('hex'))
+		//* console.log(crypto.randomBytes(32).toString('hex'))
 		const { login, password } = req.body
 
 		if (!login) {

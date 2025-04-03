@@ -1,7 +1,5 @@
-'use strict'
-
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default {
 	async up(queryInterface, Sequelize) {
 		await queryInterface.createTable('Groups', {
 			id: {
@@ -46,17 +44,6 @@ module.exports = {
 				onUpdate: 'CASCADE',
 				onDelete: 'RESTRICT',
 			},
-			creatorId: {
-				type: Sequelize.INTEGER.UNSIGNED,
-				allowNull: false,
-				comment: '创建者ID,外键,关联users表',
-				references: {
-					model: 'Users',
-					key: 'id',
-				},
-				onUpdate: 'CASCADE',
-				onDelete: 'RESTRICT',
-			},
 			createdAt: {
 				allowNull: false,
 				type: Sequelize.DATE,
@@ -71,7 +58,6 @@ module.exports = {
 
 		// 添加索引
 		await queryInterface.addIndex('Groups', ['eventId'])
-		await queryInterface.addIndex('Groups', ['creatorId'])
 		await queryInterface.addIndex('Groups', ['status'])
 	},
 

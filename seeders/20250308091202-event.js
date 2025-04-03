@@ -1,7 +1,5 @@
-'use strict'
-
 /** @type {import('sequelize-cli').Migration} */
-module.exports = {
+export default {
 	async up(queryInterface, Sequelize) {
 		await queryInterface.bulkInsert(
 			'Events',
@@ -12,11 +10,12 @@ module.exports = {
 					cover: 'event1',
 					type: '羽毛球',
 					difficulty: 3,
+					registeredCount: 3,
 					startTime: new Date('2024-03-20 18:00:00'),
 					endTime: new Date('2024-03-20 20:00:00'),
 					regStart: new Date('2024-03-19 00:00:00'),
 					regEnd: new Date('2024-03-19 18:00:00'),
-					capacity: 20,
+					capacity: 12,
 					feeType: '免费',
 					feeAmount: 0.0,
 					status: '报名中',
@@ -31,11 +30,12 @@ module.exports = {
 					cover: 'event2',
 					type: '羽毛球',
 					difficulty: 1,
+					registeredCount: 2,
 					startTime: new Date('2024-03-20 20:00:00'),
 					endTime: new Date('2024-03-20 22:00:00'),
 					regStart: new Date('2024-03-19 00:00:00'),
 					regEnd: new Date('2024-03-19 20:00:00'),
-					capacity: 16,
+					capacity: 12,
 					feeType: 'AA制',
 					feeAmount: 50.0,
 					status: '报名中',
@@ -50,11 +50,12 @@ module.exports = {
 					cover: 'event3',
 					type: '羽毛球',
 					difficulty: 5,
+					registeredCount: 2,
 					startTime: new Date('2024-03-21 14:00:00'),
 					endTime: new Date('2024-03-21 16:00:00'),
 					regStart: new Date('2024-03-20 00:00:00'),
 					regEnd: new Date('2024-03-20 14:00:00'),
-					capacity: 24,
+					capacity: 12,
 					feeType: '固定费用',
 					feeAmount: 50.0,
 					status: '报名中',
