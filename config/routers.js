@@ -11,6 +11,7 @@ import userRouter from '../routes/user/user.js'
 import eventsRouter from '../routes/user/events.js'
 import groupsRouter from '../routes/user/groups.js'
 import venuesRouter from '../routes/user/venues.js'
+import uploadsRouter from '../routes/user/upload.js'
 //* 后台路由文件
 import adminAuthRouter from '../routes/admin/auth.js'
 import adminEventsRouter from '../routes/admin/events.js'
@@ -27,6 +28,8 @@ router.use('/user', userAuth, userRouter)
 router.use('/events', userAuth, eventsRouter)
 router.use('/groups', userAuth, groupsRouter)
 router.use('/venues', userAuth, venuesRouter)
+router.use('/uploads', userAuth, uploadsRouter)
+
 //* 后台路由配置
 router.use('/admin/auth', adminAuthRouter)
 router.use('/admin/users', adminAuth, adminUsersRouter)

@@ -89,9 +89,9 @@ router.post('/register', async (req, res) => {
 		}
 
 		//* 验证密码长度
-		if (password.length < 6) {
-			throw new BadRequest('密码长度不能小于6位')
-		}
+		// if (password.length < 6 || password.length > 20) {
+		// 	throw new BadRequest('密码长度必须在6 ~ 20之间')
+		// }
 
 		//* 检查用户名是否已存在
 		const existingUser = await User.findOne({
@@ -108,7 +108,7 @@ router.post('/register', async (req, res) => {
 		const user = await User.create({
 			username,
 			email,
-			password: bcrypt.hashSync(password, 10),
+			password, // 直接传入原始密码，让模型层的set方法处理加密
 		})
 
 		//* 生成身份验证令牌

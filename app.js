@@ -4,13 +4,10 @@ import { fileURLToPath } from 'url'
 import cookieParser from 'cookie-parser'
 import logger from 'morgan'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import routers from './config/routers.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-
-dotenv.config()
 
 const app = express()
 
@@ -46,5 +43,14 @@ app.use(cors(corsOptions))
 
 //* 路由配置
 app.use('/', routers)
+
+// 错误处理
+app.use(function (req, res, next) {
+	res.status(404).json({ message: '未找到请求的资源' })
+})
+
+app.use(function (err, req, res, next) {
+	res.status(err.status || 500).json({ message: err.message })
+})
 
 export default app

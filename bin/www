@@ -9,6 +9,9 @@ import debug from 'debug'
 const debugServer = debug('backend:server')
 import http from 'http'
 
+// 自定义消息
+// console.log('\n🚀 应用启动中...\n')
+
 /**
  * Get port from environment and store in Express.
  */
@@ -84,5 +87,5 @@ function onListening() {
 	const addr = server.address()
 	const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port
 	debugServer('Listening on ' + bind)
-	// console.log("Server is running on port " + port);
+	// console.log('\n✅ 服务已启动，监听端口: ' + port + '\n')
 }
