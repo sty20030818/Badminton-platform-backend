@@ -191,6 +191,119 @@ router.delete('/:id', async function (req, res) {
 // #endregion
 
 /**
+ ** 获取活动评论列表
+ ** GET /events/:id/comments
+ */
+router.get('/:id/comments', async function (req, res) {
+	try {
+		const { id } = req.params
+		const { query } = req
+		const currentPage = Math.abs(Number(query.currentPage)) || 1
+		const pageSize = Math.abs(Number(query.pageSize)) || 10
+		const offset = (currentPage - 1) * pageSize
+
+		const comments = await models.EventComment.findAll({
+			where: { eventId: id },
+			attributes: { exclude: ['userId', 'eventId', 'updatedAt'] },
+			include: [
+				{
+					model: models.User,
+					as: 'user',
+					attributes: ['id', 'nickname', 'avatar'],
+				},
+			],
+			order: [['createdAt', 'DESC']],
+			limit: pageSize,
+			offset: offset,
+		})
+
+		const total = await models.EventComment.count({
+			where: { eventId: id },
+		})
+
+		success(res, '获取评论列表成功', {
+			comments,
+			pagination: {
+				currentPage,
+				pageSize,
+				total,
+			},
+		})
+	} catch (error) {
+		failure(res, error)
+	}
+})
+
+/**
+ ** 创建活动评论
+ ** POST /events/:id/comments
+ */
+router.post('/:id/comments', async function (req, res) {
+	try {
+		const { id } = req.params
+		const { content } = req.body
+		const userId = req.user.id
+
+		// 检查活动是否存在
+		const event = await Event.findByPk(id)
+		if (!event) {
+			throw new NotFound(`ID为${id}的活动未找到`)
+		}
+
+		const comment = await models.EventComment.create({
+			content,
+			userId,
+			eventId: id,
+		})
+
+		// 获取包含用户信息的完整评论
+		const fullComment = await models.EventComment.findByPk(comment.id, {
+			attributes: { exclude: ['userId', 'eventId', 'updatedAt'] },
+			include: [
+				{
+					model: models.User,
+					as: 'user',
+					attributes: ['id', 'nickname', 'avatar'],
+				},
+			],
+		})
+
+		success(res, '发表评论成功', { comment: fullComment }, 201)
+	} catch (error) {
+		failure(res, error)
+	}
+})
+
+/**
+ ** 删除活动评论
+ ** DELETE /events/:eventId/comments/:commentId
+ */
+router.delete('/:eventId/comments/:commentId', async function (req, res) {
+	try {
+		const { eventId, commentId } = req.params
+		const userId = req.user.id
+
+		const comment = await models.EventComment.findOne({
+			where: { id: commentId, eventId: eventId },
+		})
+
+		if (!comment) {
+			throw new NotFound('评论不存在')
+		}
+
+		// 检查是否是评论作者或管理员
+		if (comment.userId !== userId && !req.user.isAdmin) {
+			throw new NotFound('您没有权限删除此评论')
+		}
+
+		await comment.destroy()
+		success(res, '删除评论成功')
+	} catch (error) {
+		failure(res, error)
+	}
+})
+
+/**
  ** 公共方法：获取活动
  * @param req
  * @returns { event, creator, venue, groups}

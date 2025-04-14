@@ -52,8 +52,8 @@ export default (sequelize, DataTypes) => {
 						msg: '评论内容不能为空',
 					},
 					len: {
-						args: [1, 500],
-						msg: '评论内容长度需要在1 ~ 500个字符之间',
+						args: [1, 200],
+						msg: '评论内容长度需要在1 ~ 200个字符之间',
 					},
 				},
 				comment: '评论内容,非空',

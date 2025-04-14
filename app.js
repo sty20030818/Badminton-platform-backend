@@ -44,13 +44,13 @@ app.use(cors(corsOptions))
 //* 路由配置
 app.use('/', routers)
 
-// 错误处理
-app.use(function (req, res, next) {
-	res.status(404).json({ message: '未找到请求的资源' })
-})
+// // 错误处理
+// app.use(function (req, res, next) {
+// 	res.status(404).json({ message: '未找到请求的资源' })
+// })
 
-app.use(function (err, req, res, next) {
-	res.status(err.status || 500).json({ message: err.message })
-})
+// app.use(function (err, req, res, next) {
+// 	res.status(err.status || 500).json({ message: err.message })
+// })
 
 export default app
